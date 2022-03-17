@@ -9,6 +9,7 @@ from osgeo import osr
 import pandas as pd
 import warnings
 from shutil import copyfile
+from skimage import measure
 #from coastsat import SDS_download, SDS_preprocess2
 #import geopandas as gpd
 warnings.filterwarnings("ignore")
@@ -145,7 +146,7 @@ def split_and_resize(image_folder,new_image_folder):
     image_folder: path to input jpegs (str)
     output_folder: path to output jpegs (str)
     """
-    for image in glob.glob(image_folder + '/*.jpeg'):
+    for image in glob.glob(image_folder + '/*.jpg'):
         img = cv2.imread(image)
         rows,cols,bands = np.shape(img)
         if rows>cols:
@@ -154,7 +155,6 @@ def split_and_resize(image_folder,new_image_folder):
             ###xmin is shifted to right by diff
             new_img2 = img[dif:rows,0:cols]
             nr,nc,nb = np.shape(new_img2)
-            print(np.shape(new_img2))
             if nr!=nc:
                 print(np.shape(new_img2))
         else:
@@ -401,21 +401,6 @@ def myLine(coords):
         line.AddPoint_2D(float(xy[0]),float(xy[1]))
     return line
 
-def filter_points(points, rows, cols):
-    new_points = []
-    for xy in points:
-        if xy[0] <= 4:
-            continue
-        elif xy[0] >= (cols-4):
-            continue
-        elif xy[1] <= 4:
-            continue
-        elif xy[1] >= (rows-4):
-            continue
-        else:
-            new_points.append(xy)
-    return new_points
-
 def writePolyLineShp(line,
                      save_path,
                      save_pathclip,
@@ -555,7 +540,7 @@ def extract_shorelines(pix2pix_outputs,
     two_real = []
     one_fake = []
     two_fake = []
-    for file in glob.glob(image_folder + '\*.png'):
+    for file in images:
         if file.find('one_real')>0:
             one_real.append(file)
         elif file.find('two_real')>0:
@@ -591,57 +576,48 @@ def extract_shorelines(pix2pix_outputs,
         ret_one, thresh_one = cv2.threshold(one_fake_img_gray, 254, 255, cv2.THRESH_BINARY)
 
         # detect the contours on the binary image using cv2.CHAIN_APPROX_NONE
-        contours_one, hierarchy_one = cv2.findContours(image=thresh_one,
-                                                       mode=cv2.RETR_EXTERNAL,
-                                                       method=cv2.CHAIN_APPROX_SIMPLE)
+        contours_one = measure.find_contours(thresh_one, 254)
         # apply binary thresholding, second image
         ret_two, thresh_two = cv2.threshold(two_fake_img_gray, 254, 255, cv2.THRESH_BINARY)
 
         # detect the contours on the binary image using cv2.CHAIN_APPROX_NONE
-        contours_two, hierarchy_two = cv2.findContours(image=thresh_two,
-                                                       mode=cv2.RETR_EXTERNAL,
-                                                       method=cv2.CHAIN_APPROX_SIMPLE)
+        contours_two = measure.find_contours(thresh_two, 254)
+        
         # get rid of short and extra contours
-        contours_gis_one = np.squeeze(contours_one)
-        if contours_gis_one.ndim < 2 and len(contours_gis_one)>4:
-            continue
-        if contours_gis_one.ndim < 2:
-            idx = 0
-            length = 0
-            for i in range(len(contours_gis_one)):
-                newlen = len(contours_gis_one[i])
-                if newlen > length:
-                    idx = i
-                    length = newlen
-            contours_gis_one = np.squeeze(contours_gis_one[idx])
+        contours_gis_one = contours_one
+        maxlength=0
+        i=0
+        for contour in contours_gis_one:
+            if len(contour)>maxlength:
+                maxlength=len(contour)
+                idx = i
+            else:
+                maxlength=maxlength
+            i=i+1
+        contour_one = contours_gis_one[idx]
 
         # get rid of short and extra contours
-        contours_gis_two = np.squeeze(contours_two)
-        if contours_gis_two.ndim < 2 and len(contours_gis_two)>4:
-            continue
-        if contours_gis_two.ndim < 2:
-            idx = 0
-            length = 0
-            for i in range(len(contours_gis_two)):
-                newlen = len(contours_gis_two[i])
-                if newlen > length:
-                    idx = i
-                    length = newlen
-            contours_gis_two = np.squeeze(contours_gis_two[idx])
-            
-        #filter points
-        contours_gis_one = filter_points(contours_gis_one, rows_one, cols_one)
-        contours_gis_two = filter_points(contours_gis_two, rows_two, cols_two)
+        contours_gis_two = contours_two
+        maxlength=0
+        i=0
+        for contour in contours_gis_two:
+            if len(contour)>maxlength:
+                maxlength=len(contour)
+                idx = i
+            else:
+                maxlength=maxlength
+            i=i+1
+        contour_two = contours_gis_two[idx]
         
         # get in utm coordinates
         geo_info_one,epsg_one = get_geo_info(one_real, coords_file)
         epsg_one=int(epsg_one)
-        geo_points_one = translate_to_geo(contours_gis_one, geo_info_one, one_fake)
+        geo_points_one = translate_to_geo(contour_one, geo_info_one, one_fake)
 
         # get in utm coordinates
         geo_info_two,epsg_two = get_geo_info(two_real, coords_file)
         epsg_two=int(epsg_two)
-        geo_points_two = translate_to_geo(contours_gis_two, geo_info_two, two_fake)
+        geo_points_two = translate_to_geo(contour_two, geo_info_two, two_fake)
 
 
         # save the results, image+shoreline overlay, shapefile, google earth
@@ -659,34 +635,48 @@ def extract_shorelines(pix2pix_outputs,
             geo_points_one = geo_points_one
             geo_points_two = geo_points_two
             line = myLine(geo_points_two)
+
             
+        name_im_one = os.path.join(shoreline_save, name_one+'overlayshore.png')
+        name_im_two = os.path.join(shoreline_save, name_two+'overlayshore.png')    
+
         # draw contours on the original image
         one_real_copy = cv2.imread(one_real).copy()
         two_real_copy = cv2.imread(two_real).copy()
-        cv2.drawContours(image=one_real_copy,
-                         contours=contours_one,
-                         contourIdx=-1,
-                         color=(0, 255, 0),
-                         thickness=1,
-                         lineType=cv2.LINE_AA)
-        cv2.drawContours(image=two_real_copy,
-                         contours=contours_two,
-                         contourIdx=-1,
-                         color=(0, 255, 0),
-                         thickness=1,
-                         lineType=cv2.LINE_AA)
+        
+        # Display the image and plot all contours found
+        fig, ax = plt.subplots()
+        ax.imshow(one_real_copy, cmap=plt.cm.gray)
 
+        for contour in contours_one:
+            ax.plot(contour[:, 1], contour[:, 0], linewidth=2)
+
+        ax.axis('image')
+        ax.set_xticks([])
+        ax.set_yticks([])
+        plt.savefig(name_im_one, dpi=300) #save image
+        plt.close()
+        
+        # Display the image and plot all contours found
+        fig, ax = plt.subplots()
+        ax.imshow(two_real_copy, cmap=plt.cm.gray)
+
+        for contour in contours_two:
+            ax.plot(contour[:, 1], contour[:, 0], linewidth=2)
+
+        ax.axis('image')
+        ax.set_xticks([])
+        ax.set_yticks([])
+        plt.savefig(name_im_two, dpi=300) #save image
+        plt.close()
+
+        # saving stuff
         shoreline_save = os.path.join(site_folder, 'shoreline_images')
         shapefile_save = os.path.join(site_folder, 'shapefiles')
         shapefile_save_clip = os.path.join(site_folder, 'shapefiles_clipped')
 
-        
-        name_im_one = os.path.join(shoreline_save, name_one+'overlayshore.png')
-        name_im_two = os.path.join(shoreline_save, name_two+'overlayshore.png')
         name_shape = os.path.join(shapefile_save, name+'shore.shp')
         name_shape_clip = os.path.join(shapefile_clip_save, name+'clipshore.shp')
-        cv2.imwrite(name_im_one, one_real_copy[2:-2,2:-2])
-        cv2.imwrite(name_im_two, two_real_copy[2:-2,2:-2])
         writePolyLineShp(line,name_shape,name_shape_clip, epsg_one, xmin, xmax, ymin, ymax)
 
 def merge_shapefiles(clipped_shapefile_folder,
@@ -718,15 +708,14 @@ def process(pix2pix_outputs,
     """
 
     ##Define output folders
-    root = os.get_cwd()
-    num_images = len(glob.glob(image_folder + '\*.png'))
+    root = os.getcwd()
     site_folder = os.path.join(output_folder, site)
     shoreline_images = os.path.join(site_folder, 'shoreline_images')
     shapefile_folder = os.path.join(site_folder, 'shapefiles')
     shapefile_clipped = os.path.join(site_folder, 'shapefiles_clipped')
     shapefile_merged = os.path.join(site_folder, 'shapefile_merged')
     kml_folder = os.path.join(site_folder, 'kml_merged')
-    output_folders = [site_folder, shoreline_images,
+    output_folders = [output_folder, site_folder, shoreline_images,
                       shapefile_folder, shapefile_clipped,
                       shapefile_merged, kml_folder]
     
@@ -741,7 +730,6 @@ def process(pix2pix_outputs,
     ##Extract shorelines from pix2pix outputs
     extract_shorelines(pix2pix_outputs,
                        coords_file,
-                       site,
                        site_folder)
 
     ##Merge shapefiles into one
@@ -749,18 +737,22 @@ def process(pix2pix_outputs,
 
     ##Convert merged shapefile to kml
     kml_line(shapefile, os.path.join(kml_folder, site+'merged.kml'))
-    
+
+process(r'D:\Shoreline_Extraction_GAN\testing\iri',
+        r'iri',
+        r'D:\Shoreline_Extraction_GAN\data\delmarva\metadata_delmarva_edit.csv',
+        r'testing_outputs')
 def run_pix2pix(site,
                 source,
                 num_images):
     """
     """
     pix2pix_detect = os.path.join(root, 'pix2pix_modules', 'test.py')
-    cmd0 = 'conda deactivate & conda activate pix2pix_pockmark & '
+    cmd0 = 'conda deactivate & conda activate pix2pix_shoreline & '
     cmd1 = 'python ' + pix2pix_detect
     cmd2 = ' --dataroot ' + source
     cmd3 = ' --model test'
-    cmd4 = ' --name '+ os.path.join(root, 'pix2pix_modules', 'checkpoints','shoreline_gan')
+    cmd4 = ' --name '+ os.path.join(root, 'pix2pix_modules', 'checkpoints','Delmarva_shoreline')
     cmd5 = ' --netG unet_256'
     cmd6 = ' --netD basic'
     cmd7 = ' --dataset_mode single'
@@ -769,7 +761,94 @@ def run_pix2pix(site,
     cmd10 = ' --preprocess none'
     full_cmd = cmd0+cmd1+cmd2+cmd3+cmd4+cmd5+cmd6+cmd7+cmd8+cmd9+cmd10
     os.system(full_cmd)
-    save_folder = os.path.join(root, 'pix2pix_modules', 'checkpoints', 'shoreline_gan', 'test_latest', 'images')
+    save_folder = os.path.join(root, 'pix2pix_modules', 'checkpoints', 'Delmarva_shoreline', 'test_latest', 'images')
     return save_folder
-    
 
+
+
+
+
+def sort_images(site_dict, in_folder):
+    jpgs = glob.glob(in_folder + '\*.jpg')
+    jpegs = glob.glob(in_folder + '\*.jpeg')
+    for site in site_dict:
+        out_folder = site_dict[site]
+        for im in jpgs:
+            if im.find(site)>0:
+                src = im
+                dst = os.path.join(out_folder, os.path.splitext(os.path.basename(im))[0]+'.jpeg')
+                copyfile(src, dst)
+            else:
+                continue
+        for im in jpegs:
+            if im.find(site)>0:
+                src = im
+                dst = os.path.join(out_folder, os.path.basename(im))        
+                copyfile(src, dst)
+            else:
+                continue
+
+##
+##"""
+##Delmarva Study
+##"""
+##broadkill = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/broadkill'
+##lewes = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/lewes'
+##reho_south = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/reho_south'
+##assateague1 = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague1'
+##assateague2 = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague2'
+##assateague3 = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague3'
+##assateague4 = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague4'
+##assateague5 = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague5'
+##assateague5_two = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague5_two'
+##assateague6 = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague6'
+##assateague6_two = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague6_two'
+##bethany = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/bethany'
+##broadkill_two = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/broadkill_two'
+##capehenlopen = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/capehenlopen'
+##fenwick = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/fenwick'
+##fishingpoint = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/fishingpoint'
+##herringpoint = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/herringpoint'
+##iri = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/iri'
+##lewes_two = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/lewes_two'
+##oceancityN = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/oceancityN'
+##oceancityS = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/oceancityS'
+##reho_north = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/reho_north'
+##
+#####doubling on the ambiguous names (assateague5, broadkill, lewes, etc.)
+####sites = [broadkill, lewes, reho_south,assateague1, assateague2, assateague3, assateague4,
+####         assateague5, assateague5_two, assateague6, assateague6_two, bethany,
+####         broadkill_two, capehenlopen, fenwick, fishingpoint, herringpoint,
+####         iri, lewes_two, oceancityN, oceancityS, reho_north]
+####siteNames = ['broadkill', 'lewes', 'reho_south','assateague1', 'assateague2', 'assateague3', 'assateague4',
+####         'assateague5', 'assateague5_two', 'assateague6', 'assateague6_two', 'bethany',
+####         'broadkill_two', 'capehenlopen', 'fenwick', 'fishingpoint', 'herringpoint',
+####         'iri', 'lewes_two', 'oceancityN', 'oceancityS', 'reho_north']
+##
+##site_dict = dict(zip(siteNames, sites))
+##in_folder = r'D:\Shoreline_Extraction_GAN\data\delmarva\unlabelled_split'
+##sort_images(site_dict, in_folder)
+##jpeg_data = r'D:\Shoreline_Extraction_GAN\data\delmarva'
+##metadata = r'D:\Shoreline_Extraction_GAN\data\delmarva\metadata_delmarva_edit.csv'
+##
+####def select_annotation_ims(in_folder, out_folder, number):
+####    for i in range(number):
+        
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    
