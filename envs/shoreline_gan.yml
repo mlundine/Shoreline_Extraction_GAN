@@ -1,0 +1,16 @@
+name: shoreline_gan
+channels:
+  - pytorch
+  - defaults
+dependencies:
+  - python=3.7
+  - pip
+  - conda
+  - matplotlib
+  - numpy
+  - seaborn
+  - pandas
+  - gdal
+  - geopandas
+  - pip:
+    - opencv-python
