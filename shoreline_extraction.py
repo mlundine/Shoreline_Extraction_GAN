@@ -56,15 +56,15 @@ def get_metadata(site_folder, save_file):
         if file.find('_ms')>0:
             idx = file.find('_ms')
             newfile = file[0:idx]+'.tif'
-            df['file'][i] = newfile
+            df['file'][i] = os.path.splitext(newfile)[0]
         elif file.find('_dup')>0:
             file = None
         elif file.find('_10m')>0:
             idx = file.find('_10m')
             newfile = file[0:idx]+'.tif'
-            df['file'][i] = newfile
+            df['file'][i] = os.path.splitext(newfile)[0]
         else:
-            df['file'][i] = file
+            df['file'][i] = os.path.splitext(file)[0]
     filter_df = df[~df['file'].str.contains('_dup')]    
     filter_df.to_csv(metadata_csv, index=False)
     
@@ -403,12 +403,7 @@ def myLine(coords):
 
 def writePolyLineShp(line,
                      save_path,
-                     save_pathclip,
-                     epsg,
-                     xmin,
-                     xmax,
-                     ymin,
-                     ymax):
+                     epsg):
     """
     writes shapefile for extracted shoreline
     """
@@ -442,10 +437,8 @@ def writePolyLineShp(line,
     # close the shapefile
     ds.Destroy()
 
-    # clip shapefile
-    cmd = 'ogr2ogr -clipdst ' + str(xmin+100) + ' ' + str(ymin+100) + ' ' + str(xmax-100) + ' ' + str(ymax-100) + ' ' + save_pathclip + ' ' + save_path  
-    os.system(cmd)
-    return save_pathclip
+
+    return save_path
 
 def translate_to_geo(points, geo_info, image):
     """
@@ -460,14 +453,14 @@ def translate_to_geo(points, geo_info, image):
             if rows>cols:
                 new_res_y = (cols/256)*yres
                 new_res_x = (cols/256)*xres
-                x,y = points[i]
+                y,x = points[i]
                 x_geo = xmin + (x*new_res_x)
                 y_geo = ymax - (y*new_res_y)
                 geo_points[i] = (x_geo,y_geo)
             else:
                 new_res_y = (rows/256)*yres
                 new_res_x = (rows/256)*xres
-                x,y = points[i]
+                y,x  = points[i]
                 x_geo = xmin + (x*new_res_x)
                 y_geo = ymax - (y*new_res_y)
                 geo_points[i] = (x_geo,y_geo)
@@ -476,7 +469,7 @@ def translate_to_geo(points, geo_info, image):
                 new_res_y = (cols/256)*yres
                 new_res_x = (cols/256)*xres
                 diff = rows-cols
-                x,y = points[i]
+                y,x  = points[i]
                 x_geo = xmin + x*new_res_x
                 y_geo = ymax - (diff*yres)
                 y_geo = y_geo - (y*new_res_y)
@@ -485,7 +478,7 @@ def translate_to_geo(points, geo_info, image):
                 new_res_y = (rows/256)*yres
                 new_res_x = (rows/256)*xres
                 diff = cols-rows
-                x,y = points[i]
+                y,x  = points[i]
                 x_geo = xmin + (diff*xres)
                 x_geo = x_geo + (x*new_res_x)
                 y_geo = ymax - (y*new_res_y)
@@ -575,12 +568,13 @@ def extract_shorelines(pix2pix_outputs,
         # apply binary thresholding, first image
         ret_one, thresh_one = cv2.threshold(one_fake_img_gray, 254, 255, cv2.THRESH_BINARY)
 
-        # detect the contours on the binary image using cv2.CHAIN_APPROX_NONE
+        # detect the contours on the binary image using marching squares
         contours_one = measure.find_contours(thresh_one, 254)
+        
         # apply binary thresholding, second image
         ret_two, thresh_two = cv2.threshold(two_fake_img_gray, 254, 255, cv2.THRESH_BINARY)
 
-        # detect the contours on the binary image using cv2.CHAIN_APPROX_NONE
+        # detect the contours on the binary image using marching squares
         contours_two = measure.find_contours(thresh_two, 254)
         
         # get rid of short and extra contours
@@ -620,7 +614,7 @@ def extract_shorelines(pix2pix_outputs,
         geo_points_two = translate_to_geo(contour_two, geo_info_two, two_fake)
 
 
-        # save the results, image+shoreline overlay, shapefile, google earth
+        # save the results, image+shoreline overlay, shapefile
         name_one = os.path.splitext(os.path.basename(one_real))[0]
         name_two = os.path.splitext(os.path.basename(two_real))[0]
         idx = name_one.find('one')
@@ -635,8 +629,9 @@ def extract_shorelines(pix2pix_outputs,
             geo_points_one = geo_points_one
             geo_points_two = geo_points_two
             line = myLine(geo_points_two)
-
             
+        # saving shoreline overlay images
+        shoreline_save = os.path.join(site_folder, 'shoreline_images')    
         name_im_one = os.path.join(shoreline_save, name_one+'overlayshore.png')
         name_im_two = os.path.join(shoreline_save, name_two+'overlayshore.png')    
 
@@ -648,8 +643,7 @@ def extract_shorelines(pix2pix_outputs,
         fig, ax = plt.subplots()
         ax.imshow(one_real_copy, cmap=plt.cm.gray)
 
-        for contour in contours_one:
-            ax.plot(contour[:, 1], contour[:, 0], linewidth=2)
+        ax.plot(contour_one[:, 1], contour_one[:, 0], linewidth=1)
 
         ax.axis('image')
         ax.set_xticks([])
@@ -661,8 +655,7 @@ def extract_shorelines(pix2pix_outputs,
         fig, ax = plt.subplots()
         ax.imshow(two_real_copy, cmap=plt.cm.gray)
 
-        for contour in contours_two:
-            ax.plot(contour[:, 1], contour[:, 0], linewidth=2)
+        ax.plot(contour_two[:, 1], contour_two[:, 0], linewidth=1)
 
         ax.axis('image')
         ax.set_xticks([])
@@ -670,16 +663,13 @@ def extract_shorelines(pix2pix_outputs,
         plt.savefig(name_im_two, dpi=300) #save image
         plt.close()
 
-        # saving stuff
-        shoreline_save = os.path.join(site_folder, 'shoreline_images')
+        # saving shapefile
         shapefile_save = os.path.join(site_folder, 'shapefiles')
-        shapefile_save_clip = os.path.join(site_folder, 'shapefiles_clipped')
-
         name_shape = os.path.join(shapefile_save, name+'shore.shp')
-        name_shape_clip = os.path.join(shapefile_clip_save, name+'clipshore.shp')
-        writePolyLineShp(line,name_shape,name_shape_clip, epsg_one, xmin, xmax, ymin, ymax)
+        writePolyLineShp(line,name_shape,epsg_one)
 
-def merge_shapefiles(clipped_shapefile_folder,
+def merge_shapefiles(shapefile_folder,
+                     shapefile_merged,
                      site):
     """
     Merges clipped shapefiles into one
@@ -689,8 +679,8 @@ def merge_shapefiles(clipped_shapefile_folder,
     outputs:
     merge_shape_path: the path to the output shapefile (str)
     """
-    merge_shape_path = os.path.join(site,'shapefile_merged', site+'.shp')
-    gda.mergeShapes(clipped_shapefile_folder, merge_shape_path)
+    merge_shape_path = os.path.join(shapefile_merged, site+'.shp')
+    gda.mergeShapes(shapefile_folder, merge_shape_path)
     return merge_shape_path
 
 
@@ -712,12 +702,10 @@ def process(pix2pix_outputs,
     site_folder = os.path.join(output_folder, site)
     shoreline_images = os.path.join(site_folder, 'shoreline_images')
     shapefile_folder = os.path.join(site_folder, 'shapefiles')
-    shapefile_clipped = os.path.join(site_folder, 'shapefiles_clipped')
     shapefile_merged = os.path.join(site_folder, 'shapefile_merged')
     kml_folder = os.path.join(site_folder, 'kml_merged')
     output_folders = [output_folder, site_folder, shoreline_images,
-                      shapefile_folder, shapefile_clipped,
-                      shapefile_merged, kml_folder]
+                      shapefile_folder, shapefile_merged, kml_folder]
     
     ##Make them if not already there
     try:
@@ -733,15 +721,13 @@ def process(pix2pix_outputs,
                        site_folder)
 
     ##Merge shapefiles into one
-    shapefile = merge_shapefiles(shapefile_clipped, site)
+    shapefile = merge_shapefiles(shapefile_folder,
+                                 shapefile_merged,
+                                 site)
 
     ##Convert merged shapefile to kml
     kml_line(shapefile, os.path.join(kml_folder, site+'merged.kml'))
 
-process(r'D:\Shoreline_Extraction_GAN\testing\iri',
-        r'iri',
-        r'D:\Shoreline_Extraction_GAN\data\delmarva\metadata_delmarva_edit.csv',
-        r'testing_outputs')
 def run_pix2pix(site,
                 source,
                 num_images):
@@ -763,10 +749,6 @@ def run_pix2pix(site,
     os.system(full_cmd)
     save_folder = os.path.join(root, 'pix2pix_modules', 'checkpoints', 'Delmarva_shoreline', 'test_latest', 'images')
     return save_folder
-
-
-
-
 
 def sort_images(site_dict, in_folder):
     jpgs = glob.glob(in_folder + '\*.jpg')
@@ -835,8 +817,11 @@ def sort_images(site_dict, in_folder):
 ####    for i in range(number):
         
 
-
-
+##
+##process(r'D:\Shoreline_Extraction_GAN\testing\capehenlopen',
+##        r'capehenlopen',
+##        r'D:\Shoreline_Extraction_GAN\data\delmarva\metadata_delmarva_edit2.csv',
+##        r'testing_outputs')
 
 
 
