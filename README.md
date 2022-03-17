@@ -16,3 +16,26 @@ This repo will contain the following:
 ![cape_map](/images/capeHenlopen_length_years.png)
 
 ![more_examples](/images/input_output_shoreline.png)
+
+
+# Downloading satellite data
+
+CoastSat allows users to download Landsat 5, 7, 8 and Sentinel-2 imagery from anywhere around the world.
+CoastSat also includes a number of useful preprocessing tools.
+Data for this project was downloaded using CoastSat.
+
+# Labelling data.
+
+I used labelme to manually segment imagery into two classes: land and water.
+
+# Converting jsons to pngs
+
+# Building a pix2pix and/or cycle-GAN training set.
+
+# Training
+
+# Deployment
+
+# Processing Results
+
+
