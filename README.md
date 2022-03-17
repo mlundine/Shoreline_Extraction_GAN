@@ -34,6 +34,8 @@ I used labelme to manually segment imagery into two classes: land and water.
 
 # Training
 
+# Splitting Images
+
 # Deployment
 
 # Processing Results
