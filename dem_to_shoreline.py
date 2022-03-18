@@ -63,7 +63,9 @@ def lidar_dem_to_shoreline(dem_path,
     #                 Layer dstLayer, int idField, int elevField)
     # Can change contourInterval to get finer/coarser contour resolution, can also change contourBase to change
     # which elevation to start at. Right now it is set at a CI of 1m, and a base of 0m.
-    gdal.ContourGenerate(first_band, 1.0, 0.0, [], 1, no_data_value, 
+    gdal.ContourGenerate(first_band, 1.0,
+                         0.0, [],
+                         1, no_data_value, 
                          contour_shp, 0, 1)
 
     contour_ds.Destroy()
