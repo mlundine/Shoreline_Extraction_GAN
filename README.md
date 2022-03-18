@@ -140,7 +140,7 @@ Running the pix2pix model will generate binary images from RGB L5, L7, L8, or S2
 Currently, this module takes the binary images generated with pix2pix and uses the marching squares algorithm to extract the shoreline in vector format.
 It then translates the shoreline from local coordinates to geographic coordinates, and generates shapefiles.
 It then merges each shapefile into one. This then gets converted to a kml.
-Each shapefile will have attributes for each shoreline's timestamp (yyyy-MM-dd-HH-mm-ss) and year (YYYY).
+Each shapefile will have attributes for each shoreline's timestamp (yyyy-MM-dd-HH-mm-ss) and year (yyyy).
 
     process(pix2pix_outputs,
             site,
