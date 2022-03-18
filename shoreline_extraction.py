@@ -1,3 +1,5 @@
+# Mark Lundine
+
 import cv2
 import numpy as np
 import glob
@@ -102,7 +104,7 @@ def json_to_png(annotation_folder, extra_outputs, pix2pix_training_folder):
         os.system(cmd)
         jsons.append(file)
     
-    subfolders = [ f.path for f in os.scandir(trying) if f.is_dir() ] 
+    subfolders = [ f.path for f in os.scandir(extra_outputs) if f.is_dir() ] 
     for folder in subfolders:
         name = os.path.basename(folder)
         srcpng = os.path.join(folder, 'label.png')
