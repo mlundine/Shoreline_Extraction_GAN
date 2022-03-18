@@ -38,7 +38,7 @@ Data for this project was downloaded using [CoastSat](https://github.com/kvos/Co
 CoastSat allows users to download Landsat 5, 7, 8 and Sentinel-2 imagery from anywhere around the world.
 CoastSat also includes a number of useful preprocessing tools.
 
-download_imagery(polygon, dates, sat_list, sitename):
+    download_imagery(polygon, dates, sat_list, sitename):
     """
     Downloads available satellite imagery using CoastSat download and preprocessing tools
     See https://github.com/kvos/CoastSat for original code and links to associated papers
@@ -65,9 +65,10 @@ The jpegs are what get fed to the GAN during training and deployment.
 
 # Compiling metadata
 
-get_metadata(site_folder, save_file):
+    get_metadata(site_folder, save_file):
     """
     gets metadata from geotiffs downloaded thru coastsat
+
     inputs:
     site_folder: path to site (str)
     save_file: path to csv to save metadata to (str)
@@ -89,11 +90,12 @@ This image labeller saves the annotation files to jsons. To train the GANs, we n
 Labelme comes with code that can convert jsons to pngs. I use that code to do this conversion.
 I also made some code to set up training data for a pix2pix model.
 
-json_to_png(annotation_folder, extra_outputs, pix2pix_training_folder):
+    json_to_png(annotation_folder, extra_outputs, pix2pix_training_folder):
     """
     needs labelme installed and activated
     this converts labelme jsons to pngs
     sets up training, testing, and validation sets for a pix2pix model
+
     inputs: 
     annotation_folder: path to the folder containing the annotations (str)
     extra_outputs: path to save the conversions to (str)
@@ -112,7 +114,7 @@ The one I used (unet-256), expects images that are (256x256) in pixels.
 So I have some code that basically splits every image into two overlapping square images.
 Then each resulting image gets resized to 256x256.
 
-split_and_resize(image_folder,new_image_folder):
+    split_and_resize(image_folder,new_image_folder):
     """
     splits input images into two square images
     then resizes so they both have width/height of 256
@@ -125,9 +127,9 @@ split_and_resize(image_folder,new_image_folder):
 
 Running the pix2pix model will generate binary images from RGB L5, L7, L8, or S2 jpegs.
 
-run_pix2pix(site,
-            source,
-            num_images):
+    run_pix2pix(site,
+                source,
+                num_images):
     """
     """
 
@@ -137,7 +139,7 @@ Currently, this module takes the binary images generated with pix2pix and uses t
 It then translates the shoreline from local coordinates to geographic coordinates, and generates shapefiles.
 It then merges each shapefile into one. This then gets converted to a kml.
 
-process(pix2pix_outputs,
+    process(pix2pix_outputs,
             site,
             coords_file,
             output_folder):
