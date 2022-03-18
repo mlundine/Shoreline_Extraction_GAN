@@ -643,7 +643,7 @@ def extract_shorelines(pix2pix_outputs,
         fig, ax = plt.subplots()
         ax.imshow(one_real_copy, cmap=plt.cm.gray)
 
-        ax.plot(contour_one[:, 1], contour_one[:, 0], linewidth=1)
+        ax.plot(contour_one[:, 1], contour_one[:, 0], linewidth=1,color='g')
 
         ax.axis('image')
         ax.set_xticks([])
@@ -655,7 +655,7 @@ def extract_shorelines(pix2pix_outputs,
         fig, ax = plt.subplots()
         ax.imshow(two_real_copy, cmap=plt.cm.gray)
 
-        ax.plot(contour_two[:, 1], contour_two[:, 0], linewidth=1)
+        ax.plot(contour_two[:, 1], contour_two[:, 0], linewidth=1,color='g')
 
         ax.axis('image')
         ax.set_xticks([])
@@ -704,7 +704,7 @@ def process(pix2pix_outputs,
     shapefile_folder = os.path.join(site_folder, 'shapefiles')
     shapefile_merged = os.path.join(site_folder, 'shapefile_merged')
     kml_folder = os.path.join(site_folder, 'kml_merged')
-    output_folders = [output_folder, site_folder, shoreline_images,
+    output_folders = [site_folder, shoreline_images,
                       shapefile_folder, shapefile_merged, kml_folder]
     
     ##Make them if not already there
@@ -733,12 +733,13 @@ def run_pix2pix(site,
                 num_images):
     """
     """
+    root = os.getcwd()
     pix2pix_detect = os.path.join(root, 'pix2pix_modules', 'test.py')
     cmd0 = 'conda deactivate & conda activate pix2pix_shoreline & '
     cmd1 = 'python ' + pix2pix_detect
     cmd2 = ' --dataroot ' + source
     cmd3 = ' --model test'
-    cmd4 = ' --name '+ os.path.join(root, 'pix2pix_modules', 'checkpoints','Delmarva_shoreline')
+    cmd4 = ' --name '+ os.path.join(root, 'pix2pix_modules', 'checkpoints','Delmarva_shoreline') ##change this as input
     cmd5 = ' --netG unet_256'
     cmd6 = ' --netD basic'
     cmd7 = ' --dataset_mode single'
@@ -747,7 +748,7 @@ def run_pix2pix(site,
     cmd10 = ' --preprocess none'
     full_cmd = cmd0+cmd1+cmd2+cmd3+cmd4+cmd5+cmd6+cmd7+cmd8+cmd9+cmd10
     os.system(full_cmd)
-    save_folder = os.path.join(root, 'pix2pix_modules', 'checkpoints', 'Delmarva_shoreline', 'test_latest', 'images')
+    save_folder = os.path.join(root, 'pix2pix_modules', 'checkpoints','Delmarva_shoreline','test_latest', 'images') ##change this is input
     return save_folder
 
 def sort_images(site_dict, in_folder):
@@ -756,72 +757,28 @@ def sort_images(site_dict, in_folder):
     for site in site_dict:
         out_folder = site_dict[site]
         for im in jpgs:
-            if im.find(site)>0:
+            if im.find(site+'one')>0:
+                src = im
+                dst = os.path.join(out_folder, os.path.splitext(os.path.basename(im))[0]+'.jpeg')
+                copyfile(src, dst)
+            elif im.find(site+'two')>0:
                 src = im
                 dst = os.path.join(out_folder, os.path.splitext(os.path.basename(im))[0]+'.jpeg')
                 copyfile(src, dst)
             else:
                 continue
         for im in jpegs:
-            if im.find(site)>0:
+            if im.find(site+'one')>0:
                 src = im
-                dst = os.path.join(out_folder, os.path.basename(im))        
+                dst = os.path.join(out_folder, os.path.splitext(os.path.basename(im))[0]+'.jpeg')
+                copyfile(src, dst)
+            elif im.find(site+'two')>0:
+                src = im
+                dst = os.path.join(out_folder, os.path.splitext(os.path.basename(im))[0]+'.jpeg')
                 copyfile(src, dst)
             else:
                 continue
 
-##
-##"""
-##Delmarva Study
-##"""
-##broadkill = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/broadkill'
-##lewes = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/lewes'
-##reho_south = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/reho_south'
-##assateague1 = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague1'
-##assateague2 = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague2'
-##assateague3 = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague3'
-##assateague4 = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague4'
-##assateague5 = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague5'
-##assateague5_two = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague5_two'
-##assateague6 = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague6'
-##assateague6_two = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/assateague6_two'
-##bethany = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/bethany'
-##broadkill_two = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/broadkill_two'
-##capehenlopen = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/capehenlopen'
-##fenwick = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/fenwick'
-##fishingpoint = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/fishingpoint'
-##herringpoint = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/herringpoint'
-##iri = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/iri'
-##lewes_two = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/lewes_two'
-##oceancityN = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/oceancityN'
-##oceancityS = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/oceancityS'
-##reho_north = r'D:/Shoreline_Extraction_GAN/data/delmarva/unlabelled_split/reho_north'
-##
-#####doubling on the ambiguous names (assateague5, broadkill, lewes, etc.)
-####sites = [broadkill, lewes, reho_south,assateague1, assateague2, assateague3, assateague4,
-####         assateague5, assateague5_two, assateague6, assateague6_two, bethany,
-####         broadkill_two, capehenlopen, fenwick, fishingpoint, herringpoint,
-####         iri, lewes_two, oceancityN, oceancityS, reho_north]
-####siteNames = ['broadkill', 'lewes', 'reho_south','assateague1', 'assateague2', 'assateague3', 'assateague4',
-####         'assateague5', 'assateague5_two', 'assateague6', 'assateague6_two', 'bethany',
-####         'broadkill_two', 'capehenlopen', 'fenwick', 'fishingpoint', 'herringpoint',
-####         'iri', 'lewes_two', 'oceancityN', 'oceancityS', 'reho_north']
-##
-##site_dict = dict(zip(siteNames, sites))
-##in_folder = r'D:\Shoreline_Extraction_GAN\data\delmarva\unlabelled_split'
-##sort_images(site_dict, in_folder)
-##jpeg_data = r'D:\Shoreline_Extraction_GAN\data\delmarva'
-##metadata = r'D:\Shoreline_Extraction_GAN\data\delmarva\metadata_delmarva_edit.csv'
-##
-####def select_annotation_ims(in_folder, out_folder, number):
-####    for i in range(number):
-        
-
-##
-##process(r'D:\Shoreline_Extraction_GAN\testing\capehenlopen',
-##        r'capehenlopen',
-##        r'D:\Shoreline_Extraction_GAN\data\delmarva\metadata_delmarva_edit2.csv',
-##        r'testing_outputs')
 
 
 
@@ -836,4 +793,6 @@ def sort_images(site_dict, in_folder):
 
 
 
-    
+
+
+

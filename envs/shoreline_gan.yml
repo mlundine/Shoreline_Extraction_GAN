@@ -1,7 +1,7 @@
 name: shoreline_gan
 channels:
-  - pytorch
   - defaults
+  - conda-forge
 dependencies:
   - python=3.7
   - pip
@@ -10,6 +10,14 @@ dependencies:
   - numpy
   - seaborn
   - pandas
+  - pillow
+  - earthengine-api
+  - pytz
+  - scikit-image
+  - scikit-learn
+  - shapely
+  - scipy
+  - astropy
   - gdal
   - geopandas
   - pip:
