@@ -13,7 +13,7 @@ import warnings
 from shutil import copyfile
 from skimage import measure
 #from coastsat import SDS_download, SDS_preprocess2
-#import geopandas as gpd
+import geopandas as gpd
 warnings.filterwarnings("ignore")
 
 def get_metadata(site_folder, save_file):
@@ -700,8 +700,8 @@ def process(pix2pix_outputs,
     """
 
     ##Define output folders
-    root = os.getcwd()
-    site_folder = os.path.join(output_folder, site)
+    processed_folder = os.path.join(output_folder, 'processed')
+    site_folder = os.path.join(processed_folder, site)
     shoreline_images = os.path.join(site_folder, 'shoreline_images')
     shapefile_folder = os.path.join(site_folder, 'shapefiles')
     shapefile_merged = os.path.join(site_folder, 'shapefile_merged')
@@ -710,11 +710,11 @@ def process(pix2pix_outputs,
                       shapefile_folder, shapefile_merged, kml_folder]
     
     ##Make them if not already there
-    try:
-        for folder in output_folders:
+    for folder in output_folders:
+        try:
             os.mkdir(folder)
-    except:
-        pass
+        except:
+            pass
 
 
     ##Extract shorelines from pix2pix outputs
@@ -730,27 +730,43 @@ def process(pix2pix_outputs,
     ##Convert merged shapefile to kml
     kml_line(shapefile, os.path.join(kml_folder, site+'merged.kml'))
 
-def run_pix2pix(site,
-                source,
-                num_images):
+def run_model(site,
+              source,
+              outputs_dir,
+              num_images):
     """
+    Runs trained pix2pix or cycle-GAN shoreline models
+    inputs:
+    site: name for site (str)
+    source: folder with images to run on (str)
+    outputs_dir: folder to save outputs to (str, ex : r'./outputs'
+    num_images: number of images in source folder (int)
+    outputs:
+    save_folder: directory where generated images are saved (str)
     """
     root = os.getcwd()
     pix2pix_detect = os.path.join(root, 'pix2pix_modules', 'test.py')
+    results_dir = os.path.join(outputs_dir, 'gan', site)
+    try:
+        os.mkdir(results_dir)
+    except:
+        pass
     cmd0 = 'conda deactivate & conda activate pix2pix_shoreline & '
     cmd1 = 'python ' + pix2pix_detect
     cmd2 = ' --dataroot ' + source
     cmd3 = ' --model test'
-    cmd4 = ' --name '+ os.path.join(root, 'pix2pix_modules', 'checkpoints','Delmarva_shoreline') ##change this as input
+    cmd4 = ' --name Delmarva_shoreline' ##change this as input
     cmd5 = ' --netG unet_256'
     cmd6 = ' --netD basic'
     cmd7 = ' --dataset_mode single'
     cmd8 = ' --norm batch'
     cmd9 = ' --num_test ' + str(num_images)
     cmd10 = ' --preprocess none'
-    full_cmd = cmd0+cmd1+cmd2+cmd3+cmd4+cmd5+cmd6+cmd7+cmd8+cmd9+cmd10
+    cmd11 = ' --results_dir ' + results_dir
+    cmd12 = ' --checkpoints_dir ' + os.path.join(root, 'pix2pix_modules', 'checkpoints')
+    full_cmd = cmd0+cmd1+cmd2+cmd3+cmd4+cmd5+cmd6+cmd7+cmd8+cmd9+cmd10+cmd11+cmd12
     os.system(full_cmd)
-    save_folder = os.path.join(root, 'pix2pix_modules', 'checkpoints','Delmarva_shoreline','test_latest', 'images') ##change this is input
+    save_folder = os.path.join(results_dir,'Delmarva_shoreline','test_latest', 'images') ##change this is input
     return save_folder
 
 def sort_images(site_dict, in_folder):
@@ -780,8 +796,89 @@ def sort_images(site_dict, in_folder):
                 copyfile(src, dst)
             else:
                 continue
+            
+def setup_datasets():
+    """
+    TODO
+    """
+    #python datasets/combine_A_and_B.py --fold_A datasets/Del_shore2/A --fold_B datasets\Del_shore2B --fold_AB datasets/Del_shore2 --no_multiprocessing
+
+    
+def train_model(model_name,
+                model_type,
+                dataroot,
+                n_epochs = 200):
+    """
+    Trains pix2pix or cycle-GAN model
+    inputs:
+    model_name: name for your model (str)
+    model_type: either 'pix2pix' or 'cycle-GAN' (str)
+    dataroot: path to training/test/val directories (str)
+    n_epochs (optional): number of epochs to train for (int)
+    """
+    root = os.getcwd()
+    pix2pix_train = os.path.join(root, 'pix2pix_modules', 'train.py')
+
+    cmd0 = 'conda deactivate & conda activate pix2pix_shoreline & '
+    cmd1 = 'python ' + pix2pix_train
+    cmd2 = ' --dataroot ' + dataroot
+    cmd3 = ' --model ' + model_type
+    cmd4 = ' --name ' + model_name#change this as input
+    cmd5 = ' --netG unet_256'
+    cmd6 = ' --netD basic'
+    cmd7 = ' --num_test ' + str(num_images)
+    cmd8 = ' --preprocess none'
+    cmd9 = ' --checkpoints_dir ' + os.path.join(root, 'pix2pix_modules', 'checkpoints')
+    cmd10 = ' --n_epochs ' + str(n_epochs)
+    full_cmd = cmd0+cmd1+cmd2+cmd3+cmd4+cmd5+cmd6+cmd7+cmd8+cmd9+cmd10
+    os.system(full_cmd)
+    print('Training Finished')
 
 
+def run_and_process(site,
+                    source,
+                    coords_file):
+    """
+    Runs trained pix2pix or cycle-GAN model,
+    then runs outputs through marching squares to extract shorelines,
+    then converts the shorelines to GIS format.
+    inputs:
+    site: name for site (str)
+    source: directory with images to run model on (str)
+    coords_file: path to the csv containing metadata on images (str)
+    """
+    root = os.getcwd()
+    outputs_dir = os.path.join(root, 'outputs')
+    gan_dir = os.path.join(outputs_dir, 'gan')
+    processed_dir = os.path.join(outputs_dir, 'processed')
+    dirs = [outputs_dir, gan_dir, processed_dir]
+    for dir in dirs:
+        try:
+            os.mkdir(dir)
+        except:
+            pass
+    num_images = len(glob.glob(source+'\*.jpeg'))
+    print('Running GAN')
+    gan_results = run_model(site, source, outputs_dir, num_images)
+    print('GAN finished')
+    print('Extracting Shorelines')
+    process(gan_results,
+            site,
+            coords_file,
+            outputs_dir)
+    print('Shorelines Extracted')
+                     
+##capehenlopen = r'D:\Shoreline_Extraction_GAN\data\delmarva\unlabelled_split\capehenlopen'
+##fishingpoint = r'D:\Shoreline_Extraction_GAN\data\delmarva\unlabelled_split\fishingpoint'
+##herringpoint = r'D:\Shoreline_Extraction_GAN\data\delmarva\unlabelled_split\herringpoint'
+##iri = r'D:\Shoreline_Extraction_GAN\data\delmarva\unlabelled_split\iri'
+##run_and_process('iri',
+##                iri,
+##                r'D:\Shoreline_Extraction_GAN\data\delmarva\metadata_delmarva_edit2.csv')
+
+
+
+            
 
 
 
