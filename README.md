@@ -146,6 +146,11 @@ This code is used to combine A and B datasets for pix2pix training.
     full_cmd = cmd0+cmd1+cmd2+cmd3+cmd4+cmd5
     os.system(full_cmd)
 
+Two examples of combined AB images are shown below.
+
+![herringpointab](/images/herringptab.jpeg)
+![fenwickab](/images/fenwickab.jpeg)
+
 # Training
 
 This module can be used to train a pix2pix or cycle-GAN model, after training/testing/validation data is prepped and organized.
