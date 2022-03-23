@@ -104,10 +104,6 @@ I also made some code to set up training data for a pix2pix model.
     pix2pix_training_folder: path to save the pix2pix training set to (str)
     """
 
-# Training
-
-Working on incorporating some code to abstract the training process for pix2pix and cycle-GAN models.
-
 # Splitting Images
 
 This step is important. The generators used in pix2pix and cycle-GAN require images of specific sizes. 
@@ -125,32 +121,42 @@ Then each resulting image gets resized to 256x256.
     output_folder: path to output jpegs (str)
     """
 
+# Training/Testing/Validation Data Preparation
+
+Coming soon...
+
+# Training
+
+This module can be used to train a pix2pix or cycle-GAN model, after training/testing/validation data is prepped and organized.
+
+    train_model(model_name,
+                model_type,
+                dataroot,
+                n_epochs = 200):
+    """
+    Trains pix2pix or cycle-GAN model
+    inputs:
+    model_name: name for your model (str)
+    model_type: either 'pix2pix' or 'cycle-GAN' (str)
+    dataroot: path to training/test/val directories (str)
+    n_epochs (optional): number of epochs to train for (int)
+    """
+
 # Deployment
 
-Running the pix2pix model will generate binary images from RGB L5, L7, L8, or S2 jpegs.
-
-    run_pix2pix(site,
-                source,
-                num_images):
+Running the pix2pix model or cycle-GAN model will generate binary images from RGB L5, L7, L8, or S2 jpegs.
+These images are then processed with the marching squares algorithm to extract contour lines for the shore.
+These contours are then converted to the correct geographic coordinate system.
+    
+    run_and_process(site,
+                    source,
+                    coords_file):
     """
-    """
-
-# Processing Results
-
-Currently, this module takes the binary images generated with pix2pix and uses the marching squares algorithm to extract the shoreline in vector format.
-It then translates the shoreline from local coordinates to geographic coordinates, and generates shapefiles.
-It then merges each shapefile into one. This then gets converted to a kml.
-Each shapefile will have attributes for each shoreline's timestamp (yyyy-MM-dd-HH-mm-ss) and year (yyyy).
-
-    process(pix2pix_outputs,
-            site,
-            coords_file,
-            output_folder):
-    """
-    Takes pix2pix outputs, extracts shorelines, outputs results in various formats
+    Runs trained pix2pix or cycle-GAN model,
+    then runs outputs through marching squares to extract shorelines,
+    then converts the shorelines to GIS format.
     inputs:
-    pix2pix_outputs: folder to pix2pix images (str)
-    site: site name (str)
-    coords_file: path to metadata csv (str)
-    output_folder: path to save outputs to (str)
+    site: name for site (str)
+    source: directory with images to run model on (str)
+    coords_file: path to the csv containing metadata on images (str)
     """
