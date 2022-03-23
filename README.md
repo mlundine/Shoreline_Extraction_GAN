@@ -28,11 +28,17 @@ envs/ holds two environment files that list all of the requirements.
 
 pix2pix_shoreline is used for running the GANs, while shoreline_gan is for everything else.
 
-Use Anaconda to set these up (ex: conda env create --file envs/pix2pix_shoreline.yml)
+Use Anaconda to set these up.
+    
+    conda env create --file envs/pix2pix_shoreline.yml
+    conda env create --file envs/shoreline_gan.yml
 
 # Workflow
 
 shoreline_extraction.py contains the main modules for this project. The modules are described below.
+Activate shoreline_gan before running modules.
+
+    conda activate shoreline_gan
 
 # Downloading satellite data
 
