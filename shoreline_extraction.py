@@ -797,12 +797,26 @@ def sort_images(site_dict, in_folder):
             else:
                 continue
             
-def setup_datasets():
+def setup_datasets(home,
+                   name,
+                   foldA,
+                   foldB):
     """
-    TODO
+    Setups annotation pairs for pix2pix training
+    inputs:
+    home: parent directory for annotations (str) (ex: r'pix2pix_modules/datasets/MyProject')
+    name: project name (str)
+    foldA: path to A annotations (str)
+    foldB: path to B annotations (str)
     """
-    #python datasets/combine_A_and_B.py --fold_A datasets/Del_shore2/A --fold_B datasets\Del_shore2B --fold_AB datasets/Del_shore2 --no_multiprocessing
-
+    cmd0 = 'conda deactivate & conda activate pix2pix_shoreline & '
+    cmd1 = 'python pixpix_modules/datasets/combine_A_and_B.py'
+    cmd2 = ' --fold_A ' + foldA
+    cmd3 = ' --fold_B ' + foldB
+    cmd4 = ' --fold_AB ' + home
+    cmd5 = ' --no_multiprocessing'
+    full_cmd = cmd0+cmd1+cmd2+cmd3+cmd4+cmd5
+    os.system(full_cmd)
     
 def train_model(model_name,
                 model_type,
