@@ -110,23 +110,6 @@ I also made some code to set up training data for a pix2pix model.
     pix2pix_training_folder: path to save the pix2pix training set to (str)
     """
 
-# Splitting Images
-
-This step is important. The generators used in pix2pix and cycle-GAN require images of specific sizes. 
-Satellite imagery is going to come in a variety of shapes and sizes.
-The one I used (unet-256), expects images that are (256x256) in pixels.
-So I have some code that basically splits every image into two overlapping square images.
-Then each resulting image gets resized to 256x256.
-
-    split_and_resize(image_folder,new_image_folder):
-    """
-    splits input images into two square images
-    then resizes so they both have width/height of 256
-    inputs:
-    image_folder: path to input jpegs (str)
-    output_folder: path to output jpegs (str)
-    """
-
 # Training/Testing/Validation Data Preparation
 
 This code is used to combine A and B datasets for pix2pix training.
@@ -156,6 +139,24 @@ Two examples of combined AB images are shown below.
 
 ![herringpointab](/images/herringptab.jpeg)
 ![fenwickab](/images/fenwickab.jpeg)
+
+
+# Splitting Images
+
+This step is important. The generators used in pix2pix and cycle-GAN require images of specific sizes. 
+Satellite imagery is going to come in a variety of shapes and sizes.
+The one I used (unet-256), expects images that are (256x256) in pixels.
+So I have some code that basically splits every image into two overlapping square images.
+Then each resulting image gets resized to 256x256.
+
+    split_and_resize(image_folder,new_image_folder):
+    """
+    splits input images into two square images
+    then resizes so they both have width/height of 256
+    inputs:
+    image_folder: path to input jpegs (str)
+    output_folder: path to output jpegs (str)
+    """
 
 # Training
 
