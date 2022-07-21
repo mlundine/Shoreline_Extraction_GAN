@@ -63,7 +63,7 @@ CoastSat also includes a number of useful preprocessing tools.
 
 To download satellite data, find an area where there are beaches and design a rectangular-shaped, north-up oriented, UTM aligned box.
 
-If your area of interest is not rectangular and UTM-aligned, the Landsat images will have cropped out sections lots of no-data areas.
+If your area of interest is not rectangular and UTM-aligned, the Landsat images will have cropped out sections and lots of no-data areas.
 
 The cloud-cover threshold is set to 0.30 in this code. 
 You can change this in the file utils/download_utils, under the download_imagery function.
@@ -128,7 +128,7 @@ The next two (with suffix simplify20vtx) contain the simplified shorelines filte
 The last two (with suffix simplify20vtxsmooth) contain the simplified and filtered shorelines smoothed out with Chaikens algorithm.
 
 
-The last two shapefiles should have the best results. The vertex filter is used to filter out erroneous horelines that were extracted from noisy imagery.
+The last two shapefiles should have the best results. The vertex filter is used to filter out erroneous shorelines that were extracted from noisy imagery.
 The simplifying and smoothing helps remove sharp edges from the extracted shorelines.
 
 
@@ -138,7 +138,7 @@ shapefiles/ will contain individual shoreline shapefiles for each image.
 shoreline_images/ will contain black and white images with the extracted shorelines.
 
 
-The best results come from editing the simplify20vtxsmooth shapefiles in a GIS software.
+The best results come from editing the simplify20vtxsmooth shapefiles in GIS software.
 I usually need to delete a few erroneous shorelines and clip out the ends. 
 Then I merge together the two shapefiles.
 
