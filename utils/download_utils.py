@@ -64,15 +64,17 @@ def get_metadata(site_folder, sitename, save_file):
         else:
             df['file'][i] = os.path.splitext(file)[0]
     filter_df = df[~df['file'].str.contains('_dup')]
-    
+
+    filter_df.reset_index()
+    print(filter_df.head())
     for i in range(len(filter_df)):
-        name = filter_df['file'][i]
+        name = filter_df['file'].iloc[i]
         idx = name.find(sitename)
         if idx>0:
             new_name = name[0:idx-1]
             rest_of_name = name[idx:]
             new_name = new_name+rest_of_name
-            filter_df['file'][i] = new_name
+            filter_df['file'].iloc[i] = new_name
     filter_df.to_csv(metadata_csv, index=False)
     
     return num_images, metadata_csv
