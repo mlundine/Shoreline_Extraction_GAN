@@ -340,17 +340,6 @@ class Window(QMainWindow):
         exit_button.clicked.connect(lambda: self.exit_buttons(buttons))        
         return
 
-    def results_button(self):
-        exit_button = QPushButton('Exit')
-        self.vbox.addWidget(exit_button, 0, 2)
-
-
-
-        buttons = [exit_button]
-        #actions
-        exit_button.clicked.connect(lambda: self.exit_buttons(buttons))
-        return
-
 
     def run_train_button(self, model_name, epoch, epoch_decay, continue_train, epoch_count): 
         options = QFileDialog.Options()
@@ -430,7 +419,6 @@ class Window(QMainWindow):
                                                                 epochs_decay.value(),
                                                                 continue_train.isChecked(),
                                                                 epoch_count.text()))
-        return
 
         
     def home(self):
@@ -454,11 +442,8 @@ class Window(QMainWindow):
         timeseries = QPushButton('5. Make Timeseries')
         self.vbox.addWidget(timeseries, 4, 0)
 
-        results = QPushButton('6. Result Viewer')
-        self.vbox.addWidget(results, 5, 0)
-
-        retrain = QPushButton('7. Retraining Model')
-        self.vbox.addWidget(retrain, 6, 0)
+        retrain = QPushButton('6. Retraining Model')
+        self.vbox.addWidget(retrain, 5, 0)
         
         ###Actions
         download_imagery.clicked.connect(lambda: self.download_imagery_window())
@@ -466,7 +451,6 @@ class Window(QMainWindow):
         run_and_process.clicked.connect(lambda: self.run_and_process_button())
         make_transects.clicked.connect(lambda: self.make_transects_button())
         timeseries.clicked.connect(lambda: self.timeseries_button())
-        results.clicked.connect(lambda: self.results_button())
         retrain.clicked.connect(lambda: self.retrain_button())
 
 
