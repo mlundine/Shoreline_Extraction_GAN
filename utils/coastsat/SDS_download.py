@@ -19,7 +19,7 @@ from urllib.request import urlretrieve
 import zipfile
 import copy
 import shutil
-import gdal
+from osgeo import gdal
 
 # additional modules
 from datetime import datetime, timedelta
@@ -29,7 +29,7 @@ from skimage import morphology, transform
 from scipy import ndimage
 
 # CoastSat modules
-from coastsat import SDS_preprocess, SDS_tools, gdal_merge
+import SDS_preprocess, SDS_tools, gdal_merge
 
 np.seterr(all='ignore') # raise/ignore divisions by 0 and nans
 

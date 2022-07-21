@@ -10,6 +10,9 @@ import geopandas as gpd
 def lidar_dem_to_shoreline(dem_path,
                            contour_path,
                            shoreline_path,
+                           conf=False,
+                           contourBase = 0.0,
+                           contourInterval = 1.0,
                            no_data_value=-9999,
                            filter_extra=False):
     """
@@ -63,25 +66,37 @@ def lidar_dem_to_shoreline(dem_path,
     #                 Layer dstLayer, int idField, int elevField)
     # Can change contourInterval to get finer/coarser contour resolution, can also change contourBase to change
     # which elevation to start at. Right now it is set at a CI of 1m, and a base of 0m.
-    gdal.ContourGenerate(first_band, 1.0,
-                         0.0, [],
+    gdal.ContourGenerate(first_band, contourInterval,
+                         contourBase, [],
                          1, no_data_value, 
                          contour_shp, 0, 1)
 
     contour_ds.Destroy()
 
-    # filter out 0m contour (shoreline) with geopandas
+
+
     contour_shapefile = gpd.read_file(contour_path)
-    shoreline = contour_shapefile[contour_shapefile['elev']==0]
-    shoreline['shore_len'] = shoreline['geometry'].length
-
-    # filter out longest 0m contour
-    if filter_extra == True:
-        lengths = shoreline['shore_len']
-        max_length = max(lengths)
-        filtered_shoreline = shoreline[shoreline['shore_len']==max_length]
-        filtered_shoreline.to_file(shoreline_path)
+    if conf = True:
+        shorline = contour_shapefile[(contours_shapefile['elev']>contourBase) and
+                                     (contours_shapefile['elev']<=controurBase+(2*contourInterval))]
+        shoreline['shore_len'] = shoreline['geometry'].length
+                                     
     else:
-        shoreline.to_file(shoreline_path)
+        # filter out 0m contour (shoreline) with geopandas
+        contour_shapefile = gpd.read_file(contour_path)
+        shoreline = contour_shapefile[contour_shapefile['elev']==0]
+        shoreline['shore_len'] = shoreline['geometry'].length
+        # filter out longest contour
+        if filter_extra == True:
+            lengths = shoreline['shore_len']
+            max_length = max(lengths)
+            filtered_shoreline = shoreline[shoreline['shore_len']==max_length]
+            filtered_shoreline.to_file(shoreline_path)
+        else:
+            shoreline.to_file(shoreline_path)
 
-
+lidar_dem_to_shoreline(r'C:\MarkLundineSurface\CapeHenlopenLiDAR\bk_to_fenwick_lidar_1m.tif',
+                           r'C:\MarkLundineSurface\CapeHenlopenLiDAR\bk_to_fenwick_contours.shp',
+                           r'C:\MarkLundineSurface\CapeHenlopenLiDAR\bk_to_fenwick_shoreline.shp',
+                           no_data_value=-9999,
+                           filter_extra=False)

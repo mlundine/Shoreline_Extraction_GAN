@@ -21,7 +21,7 @@ import cv2
 from osgeo import gdal
 
 # CoastSat modules
-from coastsat import SDS_tools
+import SDS_tools
 
 np.seterr(all='ignore') # raise/ignore divisions by 0 and nans
 
@@ -535,7 +535,6 @@ def save_jpg(metadata, settings, **kwargs):
 
         filepath = SDS_tools.get_filepath(settings['inputs'],satname)
         filenames = metadata[satname]['filenames']
-        print(filenames)
 
         # loop through images
         for i in range(len(filenames)):
