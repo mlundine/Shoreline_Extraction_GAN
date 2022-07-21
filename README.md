@@ -101,6 +101,8 @@ It will save the pix2pix ready images (each image gets split into a 'one' and 't
 
 Hit Shoreline Extraction.
 
+!(shorelineExtraction)[/images/run_and_process_screen.jpg)
+
 The current trained model is called shoreline_gan_july2. It should live under pix2pix_modules/checkpoints/shoreline_gan_july2.
 Type this in the Model Name text box.
 
@@ -144,6 +146,8 @@ Then I merge together the two shapefiles.
 
 Hit Make Transects.
 
+!(transects)[/images/make_transects_screen.jpg)
+
 You need a shapefile containing a reference shoreline to do this. 
 Look in shoreline_images/ for a good example, and then find the corresponding shapefile in shapefiles/
 Copy this file and put it in its own folder.
@@ -158,6 +162,8 @@ Check that the transects look correct in GIS software.
 # Make Timeseries
 
 Hit Make Timeseries.
+
+!(timeseries)[/images/make_timeseries_screen.jpg)
 
 Type in your site name. If your transects were oriented in the opposite direction of the ocean, check switch transect direction.
 Next, hit Create Timeseries. This will ask for the shapefile containing all of the shorelines.
@@ -174,6 +180,8 @@ I will add more details on how to set up a training dataset in the future.
 
 
 Click Retraining Model.
+
+![train](/images/train_screen.jpg)
 
 Once the training dataset is set up, type in the model name. It is probably best to use the default epochs and decay epochs.
 If you are continuing training from existing checkpoints, hit the continuing training check box, and specify the starting epoch.
