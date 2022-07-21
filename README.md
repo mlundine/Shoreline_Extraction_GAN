@@ -33,163 +33,156 @@ Use Anaconda to set these up.
     conda env create --file envs/pix2pix_shoreline.yml
     conda env create --file envs/shoreline_gan.yml
 
-# Workflow
+# Start Up
 
-shoreline_extraction.py contains the main modules for this project. The modules are described below.
-Activate shoreline_gan before running modules.
+shoreline_gan_gui.py contains a gui for running this project.
+
+After the two necessary Anaconda environments have been created, activate the shoreline_gan environment.
 
     conda activate shoreline_gan
+    
+Next, run the GUI Python file. Make sure you are sitting in the .../Shoreline_Extraction_GAN/ directory.
+
+    python shoreline_gan_gui.py
+
+The GUI should look like this, with six separate buttons for various tasks related to shoreline extraction.
+
+![home_screen](/images/home_screen.jpg)
 
 # Downloading satellite data
 
-Data for this project was downloaded using [CoastSat](https://github.com/kvos/CoastSat).
+Click on 1. Download Imagery.
+
+![download_screen](/images/download_screen.jpg)
+
+Data is downloaded using [CoastSat](https://github.com/kvos/CoastSat).
+
 CoastSat allows users to download Landsat 5, 7, 8 and Sentinel-2 imagery from anywhere around the world.
+
 CoastSat also includes a number of useful preprocessing tools.
 
-    download_imagery(polygon, dates, sat_list, sitename):
-    """
-    Downloads available satellite imagery using CoastSat download and preprocessing tools
-    See https://github.com/kvos/CoastSat for original code and links to associated papers
-    
-    inputs:
-    
-    lat_long_box (list of tuples):
-    latitude and longitude box [(ul_long, ul_lat),
-                                (ur_long, ur_lat),
-                                (ll_long, ll_lat),
-                                [lr_long, lr_lat)]
-                                
-    sat_list: ['L5', 'L7', 'L8', 'S2'] specify L5, L7, L8, and/or S2
-    
-    dates: time range ['YYYY-MM-DD', 'YYYY-MM-DD']
-    """
+To download satellite data, find an area where there are beaches and design a rectangular-shaped, north-up oriented, UTM aligned box.
 
-This function will create a folder called 'data', and then a subdirectory for the site. 
-In the site folder, there will be subdirectories for each satellite.
-These subdirectories will contain all of the geotiff imagery.
-These images go through the CoastSat preprocessing tools to make RGB jpegs.
-These jpegs get saved to data/sitename/preprocessed/jpgs.
-The jpegs are what get fed to the GAN during training and deployment.
+If your area of interest is not rectangular and UTM-aligned, the Landsat images will have cropped out sections lots of no-data areas.
 
-# Compiling metadata
+The cloud-cover threshold is set to 0.30 in this code. 
+You can change this in the file utils/download_utils, under the download_imagery function.
 
-    get_metadata(site_folder, save_file):
-    """
-    gets metadata from geotiffs downloaded thru coastsat
+Pick a site name and enter this in the name text box.
 
-    inputs:
-    site_folder: path to site (str)
-    save_file: path to csv to save metadata to (str)
-    outputs:
-    num_images: number of images (int)
-    metadata_csv: path to the metadata csv (str)
-    """
-This function compiles the metadata for each geotiff downloaded through the CoastSat tools.
-The csv will contain the image name, corner coordinates, x/y resolution, and epsg code for each image.
-You feed it the filepath to the site containing all of the CoastSat downloaded geotiffs, as well as a csv path to save the metadata to.
+Select a range of dates and enter these in the start and end date text boxes. 
 
-# Labelling data.
+You will need the corner coordinates to download imagery.
 
-I used [labelme](https://github.com/wkentaro/labelme) to manually segment imagery into two classes: land and water.
-This image labeller saves the annotation files to jsons. To train the GANs, we need pngs.
+(upper left longitude, upper left latitude)
 
-# Converting jsons to pngs, setting up data to train a pix2pix model
+(upper right longitude, upper right latitude)
 
-Labelme comes with code that can convert jsons to pngs. I use that code to do this conversion.
-I also made some code to set up training data for a pix2pix model.
+(lower right longitude, lower right latitude)
 
-    json_to_png(annotation_folder, extra_outputs, pix2pix_training_folder):
-    """
-    needs labelme installed and activated
-    this converts labelme jsons to pngs
-    sets up training, testing, and validation sets for a pix2pix model
+(lower left longitude, lower left latitude)
 
-    inputs: 
-    annotation_folder: path to the folder containing the annotations (str)
-    extra_outputs: path to save the conversions to (str)
-    pix2pix_training_folder: path to save the pix2pix training set to (str)
-    """
+Then select which satellites you would like to pull imagery from (L5, L7, L8, and/or S2).
 
-# Training/Testing/Validation Data Preparation
+Once everything is ready, hit Start Download. This will make a new folder data/sitename where images get saved.
 
-This code is used to combine A and B datasets for pix2pix training.
+The metadata for all of the images are saved to a csv in this folder.
 
-    setup_datasets(home,
-                   name,
-                   foldA,
-                   foldB):
-    """
-    Setups annotation pairs for pix2pix training
-    inputs:
-    home: parent directory for annotations (str) (ex: r'pix2pix_modules/datasets/MyProject')
-    name: project name (str)
-    foldA: path to A annotations (str)
-    foldB: path to B annotations (str)
-    """
-    cmd0 = 'conda deactivate & conda activate pix2pix_shoreline & '
-    cmd1 = 'python pixpix_modules/datasets/combine_A_and_B.py'
-    cmd2 = ' --fold_A ' + foldA
-    cmd3 = ' --fold_B ' + foldB
-    cmd4 = ' --fold_AB ' + home
-    cmd5 = ' --no_multiprocessing'
-    full_cmd = cmd0+cmd1+cmd2+cmd3+cmd4+cmd5
-    os.system(full_cmd)
+# Preprocessing for pix2pix
 
-Two examples of combined AB images are shown below.
+Before running pix2pix, the images need to be split and resized into 256 x 256.
 
-![herringpointab](/images/herringptab.jpeg)
-![fenwickab](/images/fenwickab.jpeg)
+Hit Preprocess Images. This will ask for a directory with the satellite jpegs.
+This should be under data/sitename/jpg_files/preprocessed.
+
+It will save the pix2pix ready images (each image gets split into a 'one' and 'two' image) to data/sitename/jpg_files/pix2pix_ready.
+
+# Shoreline_Extraction
+
+Hit Shoreline Extraction.
+
+The current trained model is called shoreline_gan_july2. It should live under pix2pix_modules/checkpoints/shoreline_gan_july2.
+Type this in the Model Name text box.
+
+Next type in your site name.
+
+Next, type in latest under the Epoch text box.
+
+Next, hit Run and Process. First, point it to data/sitename/jpg_files/pix2pix_ready.
+Then point it to the metadata csv in data/sitename.
+
+It will make two new directories: model_outputs/gan/sitename and model_outputs/processed/sitename.
+The gan directory will have the GAN generated images.
+The processed directory will have four subdirectories: kml_merged, shapefile_merged, shapefiles, and shoreline_images.
 
 
-# Splitting Images
+kml_merged/ will contain all extracted shorelines in two separate kmls for each side of the split images.
 
-This step is important. The generators used in pix2pix and cycle-GAN require images of specific sizes. 
-Satellite imagery is going to come in a variety of shapes and sizes.
-The one I used (unet-256), expects images that are (256x256) in pixels.
-So I have some code that basically splits every image into two overlapping square images.
-Then each resulting image gets resized to 256x256.
 
-    split_and_resize(image_folder,new_image_folder):
-    """
-    splits input images into two square images
-    then resizes so they both have width/height of 256
-    inputs:
-    image_folder: path to input jpegs (str)
-    output_folder: path to output jpegs (str)
-    """
+shapefile_merged/ will contain six shapefiles (three for each side).
+The first two contain all of the extracted shorelines.
+The next two (with suffix simplify20) contain the extracted shorelines simplfied to only having vertices every 20 m.
+The next two (with suffix simplify20vtx) contain the simplified shorelines filtered by number of vertices with a recursive three-sigma filter.
+The last two (with suffix simplify20vtxsmooth) contain the simplified and filtered shorelines smoothed out with Chaikens algorithm.
 
-# Training
 
-This module can be used to train a pix2pix or cycle-GAN model, after training/testing/validation data is prepped and organized.
+The last two shapefiles should have the best results. The vertex filter is used to filter out erroneous horelines that were extracted from noisy imagery.
+The simplifying and smoothing helps remove sharp edges from the extracted shorelines.
 
-    train_model(model_name,
-                model_type,
-                dataroot,
-                n_epochs = 200):
-    """
-    Trains pix2pix or cycle-GAN model
-    inputs:
-    model_name: name for your model (str)
-    model_type: either 'pix2pix' or 'cycle-GAN' (str)
-    dataroot: path to training/test/val directories (str)
-    n_epochs (optional): number of epochs to train for (int)
-    """
 
-# Deployment
+shapefiles/ will contain individual shoreline shapefiles for each image.
 
-Running the pix2pix model or cycle-GAN model will generate binary images from RGB L5, L7, L8, or S2 jpegs.
-These images are then processed with the marching squares algorithm to extract contour lines for the shore.
-These contours are then converted to the correct geographic coordinate system.
-    
-    run_and_process(site,
-                    source,
-                    coords_file):
-    """
-    Runs trained pix2pix or cycle-GAN model,
-    then runs outputs through marching squares to extract shorelines,
-    then converts the shorelines to GIS format.
-    inputs:
-    site: name for site (str)
-    source: directory with images to run model on (str)
-    coords_file: path to the csv containing metadata on images (str)
-    """
+
+shoreline_images/ will contain black and white images with the extracted shorelines.
+
+
+The best results come from editing the simplify20vtxsmooth shapefiles in a GIS software.
+I usually need to delete a few erroneous shorelines and clip out the ends. 
+Then I merge together the two shapefiles.
+
+# Make Transects
+
+Hit Make Transects.
+
+You need a shapefile containing a reference shoreline to do this. 
+Look in shoreline_images/ for a good example, and then find the corresponding shapefile in shapefiles/
+Copy this file and put it in its own folder.
+
+Select an alongshore spacing between transects, and a cross-shore length.
+
+Hit Select Reference Shoreline Shapefile, and point it to your reference shoreline. 
+It will save the transects output to the same directory of the reference shoreline.
+
+Check that the transects look correct in GIS software.
+
+# Make Timeseries
+
+Hit Make Timeseries.
+
+Type in your site name. If your transects were oriented in the opposite direction of the ocean, check switch transect direction.
+Next, hit Create Timeseries. This will ask for the shapefile containing all of the shorelines.
+Next, it will ask for your transect shapefile.
+Next, you need to tell it where to save the timeseries data. 
+Best to make a new directory to save this stuff (timeseries plots and csvs containing data for each transect) to.
+
+# Retraining Model
+
+It is very possible that the area you are testing the model contains completely novel data for the GAN.
+This might make the results quite bad. To get better results, you need to train the GAN on annotations from the new study area.
+
+I will add more details on how to set up a training dataset in the future.
+
+
+Click Retraining Model.
+
+Once the training dataset is set up, type in the model name. It is probably best to use the default epochs and decay epochs.
+If you are continuing training from existing checkpoints, hit the continuing training check box, and specify the starting epoch.
+Then hit Run.
+
+
+
+
+
+
+
+
