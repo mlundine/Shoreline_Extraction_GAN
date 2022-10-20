@@ -20,7 +20,9 @@ This repo will (eventually) contain the following:
 
 ![cape_map](/images/cape_henlopen_shorelines.png)
 
-![cape_timeseries](/images/cape_henlopen_timeseries.png)
+![cape_timeseries](/images/Delmarva_140.png)
+
+![cape_timseries_roll_proj](/images/Delmarva_140roll_proj.png)
 
 ![more_examples](/images/input_output_shoreline.png)
 
