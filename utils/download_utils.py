@@ -10,6 +10,7 @@ import pandas as pd
 import gdal_functions_app as gda
 import SDS_download, SDS_preprocess2
 import numpy as np
+import geopandas as gpd
 
 
 def get_metadata(site_folder, sitename, save_file):
@@ -66,7 +67,6 @@ def get_metadata(site_folder, sitename, save_file):
     filter_df = df[~df['file'].str.contains('_dup')]
 
     filter_df.reset_index()
-    print(filter_df.head())
     for i in range(len(filter_df)):
         name = filter_df['file'].iloc[i]
         idx = name.find(sitename)
@@ -122,7 +122,7 @@ def download_imagery(polygon, dates, sat_list, sitename):
     ### settings for cloud filtering
     settings = { 
                 # general parameters:
-                'cloud_thresh': 0.30,        # threshold on maximum cloud cover
+                'cloud_thresh': 0.20,        # threshold on maximum cloud cover
                 'inputs':inputs
                 }
     
@@ -150,16 +150,21 @@ def download_from_shapefile(shapefile, basename):
         return coordinates
     
     polygons = get_points(shapefile)
+    print(polygons)
     j=1
     for poly in polygons:
-        box = [[poly[0][0],poly[0][1]],
-               [poly[1][0],poly[1][1]],
-               [poly[2][0],poly[2][1]],
-               [poly[3][0],poly[3][1]]]
-        download_imagery(box,
-                         ['1980-01-01', '2022-07-14'],
-                         ['L7', 'L8', 'L5', 'S2'],
-                         basename+str(j))
-        j=j+1
+        if j<6:
+            j=j+1
+            continue
+        else:
+            box = [[poly[0][0],poly[0][1]],
+                   [poly[1][0],poly[1][1]],
+                   [poly[2][0],poly[2][1]],
+                   [poly[3][0],poly[3][1]]]
+            download_imagery(box,
+                             ['1980-01-01', '2022-07-14'],
+                             ['L7', 'L8', 'L5', 'S2'],
+                             basename+str(j))
+            j=j+1
 
 

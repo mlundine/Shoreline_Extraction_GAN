@@ -41,12 +41,16 @@ def vertex_filter(shapefile):
         gdf.at[index,'vtx'] = len(row['geometry'].coords)
     filter_gdf = gdf.copy()
 
+
+    
     while count != new_count:
         count = len(filter_gdf)
         sigma = np.std(filter_gdf['vtx'])
         mean = np.mean(filter_gdf['vtx'])
         limit = mean+3*sigma
         filter_gdf = gdf[gdf['vtx']< limit]
+        if mean < 5:
+            break
         new_count = len(filter_gdf)
     
     new_path = os.path.splitext(shapefile)[0]+'vtx.shp'
@@ -231,7 +235,8 @@ def get_geo_info(image, coords_file):
 
 def extract_shorelines(pix2pix_outputs,
                        coords_file,
-                       site_folder):
+                       site_folder,
+                       input_data):
     """
     Uses cv2.findContours to convert binary image from pix2pix to a shoreline feature class
     inputs:
@@ -243,27 +248,41 @@ def extract_shorelines(pix2pix_outputs,
     ###get images into lists
     images = glob.glob(pix2pix_outputs+'\*.png')
     one_real = []
+    one_rgb = []
     two_real = []
+    two_rgb = []
     one_fake = []
     two_fake = []
     for file in images:
         if file.find('one_real')>0:
             one_real.append(file)
+            name = os.path.basename(file)
+            idx = name.find('_real')
+            name = name[0:idx]+'.jpeg'
+            one_rgb_im = os.path.join(input_data, name)
+            one_rgb.append(one_rgb_im)
         elif file.find('two_real')>0:
             two_real.append(file)
+            name = os.path.basename(file)
+            idx = name.find('_real')
+            name = name[0:idx]+'.jpeg'
+            two_rgb_im = os.path.join(input_data, name)
+            two_rgb.append(two_rgb_im)
         elif file.find('one_fake')>0:
             one_fake.append(file)
         else:
             two_fake.append(file)
-    full = [one_real, one_fake, two_real, two_fake]
+    full = [one_real, one_fake, one_rgb, two_real, two_fake, two_rgb]
     num_images = len(full[0])
 
     ###loop over all images
     for i in range(num_images):
         one_real = full[0][i]
         one_fake = full[1][i]
-        two_real = full[2][i]
-        two_fake = full[3][i]
+        one_rgb = full[2][i]
+        two_real = full[3][i]
+        two_fake = full[4][i]
+        two_rgb = full[5][i]
 
         ###open images
         one_fake_img = cv2.imread(one_fake)
@@ -347,33 +366,31 @@ def extract_shorelines(pix2pix_outputs,
         name_im_two = os.path.join(shoreline_save, name_two+'overlayshore.png')    
 
         # draw contours on the original image
-        one_real_copy = cv2.imread(one_real).copy()
-        two_real_copy = cv2.imread(two_real).copy()
+        one_real_copy = cv2.cvtColor(cv2.imread(one_rgb).copy(), cv2.COLOR_BGR2RGB)
+        two_real_copy = cv2.cvtColor(cv2.imread(two_rgb).copy(), cv2.COLOR_BGR2RGB)
         
         # Display the image and plot all contours found
         fig, ax = plt.subplots()
-        ax.imshow(one_real_copy, cmap=plt.cm.gray)
+        ax.imshow(one_real_copy,interpolation='nearest')
 
         ax.plot(contour_one[:, 1], contour_one[:, 0], linewidth=1,color='g')
 
         ax.axis('image')
         ax.set_xticks([])
         ax.set_yticks([])
-        plt.tight_layout()
-        plt.savefig(name_im_one, dpi=300) #save image
+        plt.savefig(name_im_one,bbox_inches='tight', dpi=300) #save image
         plt.close()
         
         # Display the image and plot all contours found
         fig, ax = plt.subplots()
-        ax.imshow(two_real_copy, cmap=plt.cm.gray)
+        ax.imshow(two_real_copy,interpolation='nearest')
 
         ax.plot(contour_two[:, 1], contour_two[:, 0], linewidth=1,color='g')
 
         ax.axis('image')
         ax.set_xticks([])
         ax.set_yticks([])
-        plt.tight_layout()
-        plt.savefig(name_im_two, dpi=300) #save image
+        plt.savefig(name_im_two, bbox_inches='tight', dpi=300) #save image
         plt.close()
 
         # saving shapefile
@@ -412,7 +429,8 @@ def merge_shapefiles(shapefile_folder,
 def process(pix2pix_outputs,
             site,
             coords_file,
-            output_folder):
+            output_folder,
+            input_data):
     """
     Takes pix2pix outputs, extracts shorelines, outputs results in various formats
     inputs:
@@ -443,7 +461,8 @@ def process(pix2pix_outputs,
     ##Extract shorelines from pix2pix outputs
     extract_shorelines(pix2pix_outputs,
                        coords_file,
-                       site_folder)
+                       site_folder,
+                       input_data)
 
     ##Merge shapefiles into one
     shapefile1 = merge_shapefiles(os.path.join(shapefile_folder, 'one'),

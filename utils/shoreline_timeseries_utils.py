@@ -6,6 +6,9 @@ import matplotlib.pyplot as plt
 import geopandas as gpd
 import datetime
 from math import degrees, atan2
+from utils import linear_shoreline_projection as lsp
+from utils import rolling_mean as rm
+plt.rcParams["figure.figsize"] = (16,6)
 
 def gb(x1, y1, x2, y2):
     angle = degrees(atan2(y2 - y1, x2 - x1))
@@ -57,16 +60,16 @@ def transect_timeseries(shoreline_shapefile,
         sl = shoreline_df[shoreline_df['index']==i]
         try:
             point = sl.unary_union.intersection(transect_df.unary_union)
+            easting = point.x
+            northing = point.y
         except:
             continue
-        easting = point.x
-        northing = point.y
+
+        
         northings[i] = northing
         eastings[i] = easting
-        
-        date = sl['datetime'].reset_index().values[0][1]
-        dates[i] = datetime.datetime(*map(int, date.split('-')))
-            
+        date = sl['timestamp'].reset_index().values[0][1]
+        dates[i] = datetime.datetime(*map(int, date.split('-'))) 
     df_dict = {'datetime':dates,
                'northings':northings,
                'eastings':eastings}
@@ -92,7 +95,7 @@ def transect_timeseries(shoreline_shapefile,
             distances[i] = -distance
     df['distances'] = distances
     df = df.reset_index(drop=True)
-
+    
     
     #paths to save
     save_name_png = os.path.join(output_folder, sitename+'_'+str(transect_id)+'.png')
@@ -110,7 +113,8 @@ def transect_timeseries(shoreline_shapefile,
     plt.savefig(save_name_png, dpi=300)
     plt.close()
 
-
+    lsp.plot_timeseries_with_fit(save_name_csv, projection=10)
+    rm.plot_timeseries_with_rolling_means_and_linear_fit(save_name_csv, projection=10)
 def batch_transect_timeseries(shorelines,
                               transects,
                               sitename,

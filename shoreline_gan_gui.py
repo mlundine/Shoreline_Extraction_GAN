@@ -238,7 +238,7 @@ class Window(QMainWindow):
                    exit_button]
         #actions
         exit_button.clicked.connect(lambda: self.exit_buttons(buttons))
-        select_shapefile.clicked.connect(lambda: self.select_shoreline_button(transect_length.value(), transect_spacing.value()))
+        select_shapefile.clicked.connect(lambda: self.select_shoreline_button(transect_spacing.value(), transect_length.value()))
 
     def create_timeseries_button(self,
                                  sitename,

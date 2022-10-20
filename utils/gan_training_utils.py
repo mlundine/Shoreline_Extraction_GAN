@@ -1,5 +1,6 @@
 import os
 import glob
+import numpy as np
 from shutil import copyfile
 
 def setup_datasets(home,
@@ -14,7 +15,7 @@ def setup_datasets(home,
     foldA: path to A annotations (str)
     foldB: path to B annotations (str)
     """
-    root = os.getcwd()
+    root = os.path.dirname(os.getcwd())
     combine = os.path.join(root, 'pix2pix_modules', 'datasets','combine_A_and_B.py')
     cmd0 = 'conda deactivate & conda activate pix2pix_shoreline & '
     cmd1 = 'python ' + combine 
@@ -25,7 +26,7 @@ def setup_datasets(home,
     full_cmd = cmd0+cmd1+cmd2+cmd3+cmd4+cmd5
     os.system(full_cmd)
 
-
+setup_datasets(r'D:\New_Training_Images', r'shoreline_gan', r'D:\New_Training_Images\A',r'D:\New_Training_Images\B')
 
 
 def split_datasets(pix2pix_training_folder, A_folder, B_folder):
@@ -55,7 +56,6 @@ def split_datasets(pix2pix_training_folder, A_folder, B_folder):
     for k in range(len(labels)):
         lab = np.random.choice(labels)
         name = os.path.splitext(os.path.basename(lab))[0]
-        print(name)
         new_name = name+'.jpeg'
         new_lab = name+'.jpeg'
         srcjpeg = os.path.join(A_folder, new_name)
@@ -70,8 +70,11 @@ def split_datasets(pix2pix_training_folder, A_folder, B_folder):
             dstjpeg = os.path.join(valA, new_name)
             dstpng = os.path.join(valB, new_lab)
         labels.remove(lab)
-        copyfile(srcjpeg, dstjpeg)
-        copyfile(srcpng, dstpng)
+        try:
+            copyfile(srcjpeg, dstjpeg)
+            copyfile(srcpng, dstpng)
+        except:
+            pass
         i=i+1
         frac = i/total
 

@@ -137,7 +137,6 @@ def get_rgb_ims(label_folder, rgb_folder, save_rgb_folder):
             copyfile(rgb_src, rgb_dst)
         except:
             continue
-          
 
 def png_fake_edit(folder, outFolder):
     labs = glob.glob(folder+'\*fake.png')
@@ -150,7 +149,7 @@ def png_fake_edit(folder, outFolder):
         img[img>250] = 255
         img[img<255] = 0
         cv2.imwrite(os.path.join(outFolder, newname), img)
-
+        
 def get_labs(rgb_folder, lab_folder, newlab_folder):
     for rgb in glob.glob(rgb_folder + '\*.jpeg'):
         name = os.path.basename(rgb)

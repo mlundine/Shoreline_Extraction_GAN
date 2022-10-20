@@ -82,7 +82,8 @@ def run_and_process(site,
     shoreline_extraction_utils.process(gan_results,
                                        site,
                                        coords_file,
-                                       outputs_dir)
+                                       outputs_dir,
+                                       source)
     print('Shorelines Extracted')
 
 
