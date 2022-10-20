@@ -18,7 +18,9 @@ This repo will (eventually) contain the following:
 
 ![iri_ex](/images/iri_example.png)
 
-![cape_map](/images/capeHenlopen_length_years.png)
+![cape_map](/images/cape_henlopen_shorelines.png)
+
+![cape_timeseries](/images/cape_henlopen_timeseries.png)
 
 ![more_examples](/images/input_output_shoreline.png)
 
