@@ -9,8 +9,10 @@ This repo will (eventually) contain the following:
 2. Code to train both models.
 3. Code to run the models.
 4. Code to process the results and extract shorelines into GIS format.
-5. Trained models for Delmarva's coast.
-6. Code to download new imagery to run the model on.
+5. Code to generate cross-shore transects and shoreline change timeseries (along with running means, linear trends).
+6. Trained models for Delmarva, Jersey Shore, Long Island, and North Tuscany (Italy).
+7. Code to download new imagery to run the model on.
+8. Code to train a variety of machine learning-based timeseries prediction models. (Currently in progress)
 
 # Examples
 
