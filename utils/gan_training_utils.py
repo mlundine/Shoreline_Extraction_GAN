@@ -26,7 +26,6 @@ def setup_datasets(home,
     full_cmd = cmd0+cmd1+cmd2+cmd3+cmd4+cmd5
     os.system(full_cmd)
 
-setup_datasets(r'D:\New_Training_Images', r'shoreline_gan', r'D:\New_Training_Images\A',r'D:\New_Training_Images\B')
 
 
 def split_datasets(pix2pix_training_folder, A_folder, B_folder):

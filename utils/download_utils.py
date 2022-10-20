@@ -153,18 +153,14 @@ def download_from_shapefile(shapefile, basename):
     print(polygons)
     j=1
     for poly in polygons:
-        if j<6:
-            j=j+1
-            continue
-        else:
-            box = [[poly[0][0],poly[0][1]],
-                   [poly[1][0],poly[1][1]],
-                   [poly[2][0],poly[2][1]],
-                   [poly[3][0],poly[3][1]]]
-            download_imagery(box,
-                             ['1980-01-01', '2022-07-14'],
-                             ['L7', 'L8', 'L5', 'S2'],
-                             basename+str(j))
-            j=j+1
+        box = [[poly[0][0],poly[0][1]],
+               [poly[1][0],poly[1][1]],
+               [poly[2][0],poly[2][1]],
+               [poly[3][0],poly[3][1]]]
+        download_imagery(box,
+                         ['1980-01-01', '2022-07-14'],
+                         ['L7', 'L8', 'L5', 'S2'],
+                         basename+str(j))
+        j=j+1
 
 
