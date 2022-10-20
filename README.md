@@ -18,13 +18,19 @@ This repo will (eventually) contain the following:
 
 ![iri_ex](/images/iri_example.png)
 
+![more_examples](/images/input_output_shoreline.png)
+
+# Cape Henlopen Shorelines
+
 ![cape_map](/images/cape_henlopen_shorelines.png)
+
+# Cape Henlopen Cross-Shore Position Timeseries
 
 ![cape_timeseries](/images/Delmarva_140.png)
 
-![cape_timseries_roll_proj](/images/Delmarva_140roll_proj.png)
+# Cape Henlopen Cross-Shore Running Means and Linear Trend (meters of change per year)
 
-![more_examples](/images/input_output_shoreline.png)
+![cape_timseries_roll_proj](/images/Delmarva_140roll_proj.png)
 
 # Anaconda Environment Setup
 
