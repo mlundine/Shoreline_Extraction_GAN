@@ -109,6 +109,8 @@ def transect_timeseries(shoreline_shapefile,
     plt.xlabel('Time (UTC)')
     plt.ylabel('Cross-Shore Position (m)')
     plt.xticks(rotation=90)
+    plt.xlim(min(df['datetime']), max(df['datetime']))
+    plt.ylim(min(df['distances']), max(df['distances']))
     plt.tight_layout()
     plt.savefig(save_name_png, dpi=300)
     plt.close()
