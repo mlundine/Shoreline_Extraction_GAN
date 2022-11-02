@@ -34,6 +34,10 @@ This repo will (eventually) contain the following:
 
 ![cape_timseries_roll_proj](/images/Delmarva_140roll_proj.png)
 
+# Cape Henlopen Cross-Shore Position with LSTM Projection
+
+![cape_lstm](/images/Delmarva_140_lstm_proj.png)
+
 # Anaconda Environment Setup
 
 envs/ holds two environment files that list all of the requirements.
