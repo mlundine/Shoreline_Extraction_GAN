@@ -40,13 +40,14 @@ This repo will (eventually) contain the following:
 
 # Anaconda Environment Setup
 
-envs/ holds two environment files that list all of the requirements.
+envs/ holds three environment files that list all of the requirements.
 
-pix2pix_shoreline is used for running the GANs, while shoreline_gan is for everything else.
+pix2pix_shoreline is used for running the GANs, shoreline_prediction is for training/running LSTMS, while shoreline_gan is for everything else.
 
 Use Anaconda to set these up.
     
     conda env create --file envs/pix2pix_shoreline.yml
+    conda env create --file envs/shoreline_prediction.yml
     conda env create --file envs/shoreline_gan.yml
 
 # Start Up

@@ -1,0 +1,13 @@
+name: shoreline_prediction
+channels:
+- conda-forge
+- defaults
+dependencies:
+- python=3.7
+- tensorflow-gpu=1.14.0
+- pip
+- pip:
+  - pandas
+  - matplotlib
+  - scikit-learn
+
