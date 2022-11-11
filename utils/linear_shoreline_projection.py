@@ -56,6 +56,7 @@ def plot_timeseries_with_fit(data, projection=10):
     plt.xlim(min(x), max(x)+projection)
     plt.ylim(min(y), max(np.concatenate((y,fit1y))))
     plt.legend()
+    plt.minorticks_on()
     plt.tight_layout()
     plt.savefig(fig_path,dpi=300)
     plt.close()

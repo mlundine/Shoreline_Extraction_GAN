@@ -113,7 +113,7 @@ def transect_timeseries(shoreline_shapefile,
     plt.ylim(min(df['distances']), max(df['distances']))
     plt.minorticks_on()
     plt.xlim(min(df['datetime']), max(df['datetime']))
-    plt.ylim(min(df['distances']), max(df['distances'])
+    plt.ylim(min(df['distances']), max(df['distances']))
     plt.tight_layout()
     plt.savefig(save_name_png, dpi=300)
     plt.close()

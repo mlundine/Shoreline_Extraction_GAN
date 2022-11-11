@@ -11,6 +11,8 @@ global coastsat
 wd = os.getcwd()
 coastsat = os.path.join(wd, 'utils', 'coastsat')
 gdal_modules = os.path.join(wd, 'utils', 'gdal_modules')
+lstm_modules = os.path.join(wd, 'lstm_utils')
+sys.path.append(lstm_modules)
 sys.path.append(coastsat)
 sys.path.append(gdal_modules)
 from utils import download_utils
@@ -19,7 +21,8 @@ from utils import image_processing_utils
 from utils import gan_training_utils
 from utils import gan_inference_utils
 from utils import shoreline_timeseries_utils
-
+from lstm_utils import lstm_2D_projection as project_shore
+from lstm_utils import batch_lstm_proj as project_ts_batch
 
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
@@ -338,7 +341,6 @@ class Window(QMainWindow):
         #actions
         run_model.clicked.connect(lambda: self.run_model_button(sitename.text(), model_name.text(), epoch.text()))
         exit_button.clicked.connect(lambda: self.exit_buttons(buttons))        
-        return
 
 
     def run_train_button(self, model_name, epoch, epoch_decay, continue_train, epoch_count): 
@@ -419,7 +421,226 @@ class Window(QMainWindow):
                                                                 epochs_decay.value(),
                                                                 continue_train.isChecked(),
                                                                 epoch_count.text()))
+    def run_project_button(self,
+                           sitename,
+                           num1,
+                           num2,
+                           bootstrap,
+                           num_prediction,
+                           epochs,
+                           units,
+                           batch_size,
+                           lookback):
+        
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        transect_folder = str(QFileDialog.getExistingDirectory(self, "Select Extracted Transect Folder"))
+        if transect_folder:
+            options = QFileDialog.Options()
+            options |= QFileDialog.DontUseNativeDialog
+            projected_folder = str(QFileDialog.getExistingDirectory(self, "Select Folder to Save Projections To (Make New Folder)"))
+            if projected_folder:
+                project_ts_batch.main(transect_folder,
+                                      projected_folder,
+                                      sitename,
+                                      num1,
+                                      num2,
+                                      bootstrap=bootstrap,
+                                      num_prediction=num_prediction,
+                                      epochs=epochs,
+                                      units=units,
+                                      batch_size=batch_size,
+                                      lookback=lookback)
+        
+    def run_merge_projections_button(self,
+                                     sitename,
+                                     transect_id_range,
+                                     epsg,
+                                     switch_dir):
+        
+        options = QFileDialog.Options()
+        options |= QFileDialog.DontUseNativeDialog
+        transect_folder = str(QFileDialog.getExistingDirectory(self, "Select Extracted Transect Folder"))
+        if transect_folder:
+            options = QFileDialog.Options()
+            options |= QFileDialog.DontUseNativeDialog
+            projected_folder = str(QFileDialog.getExistingDirectory(self, "Select Projected Transect Folder"))
+            if projected_folder:
+                options = QFileDialog.Options()
+                transect_shp_path, _ = QFileDialog.getOpenFileName(self,"Select Transect Shapefile", "","Shapefiles (*.shp)", options=options)
+                if transect_shp_path:
+                    project_shore.main(sitename,
+                                       transect_id_range,
+                                       projected_folder,
+                                       transect_folder,
+                                       projected_folder,
+                                       transect_shp_path,
+                                       epsg,
+                                       switch_dir=switch_dir)
+                           
+    def project_button(self):
+        exit_button = QPushButton('Exit')
+        self.vbox.addWidget(exit_button, 0, 2)
+        
+        run_project = QPushButton('Run')
+        self.vbox.addWidget(run_project, 0, 1)
+        
+        site_name_lab = QLabel('Site Name')
+        site_name = QLineEdit()
+        self.vbox.addWidget(site_name_lab, 1, 1)
+        self.vbox.addWidget(site_name, 2, 1)
+        
+        epoch_lab = QLabel('Epochs')
+        epoch = QSpinBox()
+        epoch.setMinimum(1)
+        epoch.setMaximum(99999)
+        epoch.setValue(40)
+        self.vbox.addWidget(epoch_lab, 3, 1)
+        self.vbox.addWidget(epoch, 4, 1)
 
+        start_idx_lab = QLabel('Starting Index')
+        start_idx = QSpinBox()
+        start_idx.setMinimum(0)
+        start_idx.setMaximum(99999)
+        start_idx.setValue(0)
+        self.vbox.addWidget(start_idx_lab, 1, 2)
+        self.vbox.addWidget(start_idx, 2, 2)
+
+        end_idx_lab = QLabel('Ending Index')
+        end_idx = QSpinBox()
+        end_idx.setMinimum(0)
+        end_idx.setMaximum(99999)
+        end_idx.setValue(200)
+        self.vbox.addWidget(end_idx_lab, 1, 3)
+        self.vbox.addWidget(end_idx, 2, 3)     
+
+        repeats_lab = QLabel('Number of Repeats')
+        repeats = QSpinBox()
+        repeats.setMinimum(5)
+        repeats.setMaximum(99999)
+        repeats.setValue(30)
+        self.vbox.addWidget(repeats_lab, 5, 3)
+        self.vbox.addWidget(repeats, 6, 3)
+
+        predictions_lab = QLabel('Number of Predictions')
+        predictions = QSpinBox()
+        predictions.setMinimum(1)
+        predictions.setMaximum(99999)
+        predictions.setValue(40)
+        self.vbox.addWidget(predictions_lab, 5, 2)
+        self.vbox.addWidget(predictions, 6, 2)
+        
+        lstm_units_lab = QLabel('Number of LSTM Layers')
+        lstm_units = QSpinBox()
+        lstm_units.setMinimum(1)
+        lstm_units.setMaximum(99999)
+        lstm_units.setValue(30)
+        self.vbox.addWidget(lstm_units_lab, 3, 3)
+        self.vbox.addWidget(lstm_units, 4, 3)
+
+        batch_size_lab = QLabel('Batch Size')
+        batch_size = QSpinBox()
+        batch_size.setMinimum(1)
+        batch_size.setMaximum(99999)
+        batch_size.setValue(20)
+        self.vbox.addWidget(batch_size_lab, 3, 2)
+        self.vbox.addWidget(batch_size, 4, 2)
+
+        lookback_lab = QLabel('Look-Back Value')
+        lookback = QSpinBox()
+        lookback.setMinimum(1)
+        lookback.setMaximum(99999)
+        lookback.setValue(9)
+        self.vbox.addWidget(lookback_lab, 5, 1)
+        self.vbox.addWidget(lookback, 6, 1)
+
+        buttons = [exit_button,
+                   site_name_lab,
+                   site_name,
+                   epoch_lab,
+                   epoch,
+                   start_idx_lab,
+                   start_idx,
+                   end_idx_lab,
+                   end_idx,
+                   repeats_lab,
+                   repeats,
+                   predictions_lab,
+                   predictions,
+                   lstm_units_lab,
+                   lstm_units,
+                   batch_size_lab,
+                   batch_size,
+                   lookback_lab,
+                   lookback,
+                   run_project
+                   ]
+        
+        #actions
+        exit_button.clicked.connect(lambda: self.exit_buttons(buttons))
+        run_project.clicked.connect(lambda: self.run_project_button(site_name.text(),
+                                                                    start_idx.value(),
+                                                                    end_idx.value(),
+                                                                    repeats.value(),
+                                                                    predictions.value(),
+                                                                    epoch.value(),
+                                                                    lstm_units.value(),
+                                                                    batch_size.value(),
+                                                                    lookback.value()))
+
+    def merge_projections_button(self):
+        exit_button = QPushButton('Exit')
+        self.vbox.addWidget(exit_button, 0, 2)
+
+        run_merge_projections = QPushButton('Run')
+        self.vbox.addWidget(run_merge_projections, 0, 1)
+        
+        site_name_lab = QLabel('Site Name')
+        site_name = QLineEdit()
+        self.vbox.addWidget(site_name_lab, 1, 1)
+        self.vbox.addWidget(site_name, 2, 1)
+
+        transect_id_range_lab = QLabel('Number of Transects')
+        transect_id_range = QSpinBox()
+        transect_id_range.setMinimum(0)
+        transect_id_range.setMaximum(99999)
+        transect_id_range.setValue(0)
+        self.vbox.addWidget(transect_id_range_lab, 3, 1)
+        self.vbox.addWidget(transect_id_range, 4, 1)
+
+        epsg_code_lab = QLabel('EPSG Code')
+        epsg_code = QLineEdit()
+        self.vbox.addWidget(epsg_code_lab, 5, 1)
+        self.vbox.addWidget(epsg_code, 6, 1)     
+
+        switch_dir_lab = QLabel('Switch Transect Direction')
+        switch_dir = QCheckBox()
+        self.vbox.addWidget(switch_dir_lab, 1,2)
+        self.vbox.addWidget(switch_dir, 2, 2)
+
+
+
+
+
+
+
+        buttons = [exit_button,
+                   site_name_lab,
+                   site_name,
+                   transect_id_range_lab,
+                   transect_id_range,
+                   epsg_code_lab,
+                   epsg_code,
+                   switch_dir_lab,
+                   switch_dir,
+                   run_merge_projections
+                   ]        
+        #actions
+        exit_button.clicked.connect(lambda: self.exit_buttons(buttons))
+        run_merge_projections.clicked.connect(lambda: self.run_merge_projections_button(site_name.text(),
+                                                                                        transect_id_range.value(),
+                                                                                        int(epsg_code.text()),
+                                                                                        switch_dir.isChecked()))
         
     def home(self):
         self.scroll = QScrollArea()             # Scroll Area which contains the widgets, set as the centralWidget
@@ -442,8 +663,14 @@ class Window(QMainWindow):
         timeseries = QPushButton('5. Make Timeseries')
         self.vbox.addWidget(timeseries, 4, 0)
 
-        retrain = QPushButton('6. Retraining Model')
-        self.vbox.addWidget(retrain, 5, 0)
+        project = QPushButton('6. Project Timeseries')
+        self.vbox.addWidget(project, 5, 0)
+
+        merge_projections = QPushButton('7. Merge Projections')
+        self.vbox.addWidget(merge_projections, 6, 0)
+
+        retrain = QPushButton('8. Retraining Extraction Model')
+        self.vbox.addWidget(retrain, 7, 0)
         
         ###Actions
         download_imagery.clicked.connect(lambda: self.download_imagery_window())
@@ -451,6 +678,8 @@ class Window(QMainWindow):
         run_and_process.clicked.connect(lambda: self.run_and_process_button())
         make_transects.clicked.connect(lambda: self.make_transects_button())
         timeseries.clicked.connect(lambda: self.timeseries_button())
+        project.clicked.connect(lambda: self.project_button())
+        merge_projections.clicked.connect(lambda: self.merge_projections_button())
         retrain.clicked.connect(lambda: self.retrain_button())
 
 
