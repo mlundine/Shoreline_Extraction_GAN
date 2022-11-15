@@ -38,6 +38,14 @@ This repo will (eventually) contain the following:
 
 ![cape_lstm](/images/Delmarva_140_lstm_proj.png)
 
+# Current Shoreline Extraction Training Data Domain
+
+Training data outlined in black in each image. 
+
+![usa_domain](/images/US_Model_Domain.JPG)
+
+![italy_domain](/images/Italy_Model_Domain.JPG)
+
 # Anaconda Environment Setup
 
 envs/ holds three environment files that list all of the requirements.
