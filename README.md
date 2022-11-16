@@ -9,7 +9,7 @@ This repo will (eventually) contain the following:
 2. Code to train both models.
 3. Code to run the models.
 4. Code to process the results and extract shorelines into GIS format.
-5. Code to generate cross-shore transects and shoreline change timeseries (along with running means, linear trends).
+5. Code to generate cross-shore transects and shoreline change timeseries (along with running means, linear trends, power spectra, NAO index).
 6. Trained models for Delmarva, Jersey Shore, Long Island, and North Tuscany (Italy).
 7. Code to download new imagery to run the model on.
 8. Code to train and run LSTM models for shoreline projection (Currently in progress).
