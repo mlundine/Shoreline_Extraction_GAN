@@ -43,6 +43,8 @@ This repo will (eventually) contain the following:
 
 ![cape_nao](/images/CapeHenlopen_106_nao.png)
 
+![cape_nao_modern](/images/CapeHenlopen_106_nao_2015to2022.png)
+
 # Cape Henlopen Cross-Shore Position with LSTM Projection
 
 ![cape_lstm](/images/Delmarva_140_lstm_proj.png)
