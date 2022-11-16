@@ -11,7 +11,13 @@ def plot_timeseries_with_fit(data, projection=10):
     name = os.path.basename(data)
     name = os.path.splitext(name)[0]
     new_name = name+'_proj.png'
+    new_name2 = name+'_residual.png'
+    new_name3 = name+'_residual_hist.png'
+    new_name4 = name+'_linear_trend.csv'
     fig_path = os.path.join(folder, new_name)
+    fig_path2 = os.path.join(folder, new_name2)
+    fig_path3 = os.path.join(folder, new_name3)
+    csv_path1 = os.path.join(folder, new_name4)
 
     df = pd.read_csv(data)
     df.reset_index()
@@ -61,5 +67,40 @@ def plot_timeseries_with_fit(data, projection=10):
     plt.savefig(fig_path,dpi=300)
     plt.close()
 
-    
+    fit1x = x
+    fit1y = slope1*fit1x + intercept1
 
+    residual = fit1y - shore_pos
+    plt.plot(datetimes, residual)
+    plt.xlabel('Time (UTC)')
+    plt.ylabel('Linear Trend - Observed (m)')
+    plt.xlim(min(datetimes), max(datetimes))
+    plt.ylim(min(residual), max(residual))
+    plt.minorticks_on()
+    plt.tight_layout()
+    plt.savefig(fig_path2, dpi=300)
+    plt.close()
+
+    r_mean = np.mean(residual)
+    r_std = np.std(residual)
+    lab1 = 'n = ' + str(len(residual)) + '\n'
+    lab2 = 'Mean = ' + str(np.round(r_mean, 3)) + '\n'
+    lab3 = 'Std. Dev. = ' + str(np.round(r_std,3))
+    lab=lab1+lab2+lab3
+    plt.hist(residual, bins=30, label=lab)
+    plt.xlabel('Linear Fit - Observed (m)')
+    plt.ylabel('Count')
+    plt.minorticks_on()
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(fig_path3, dpi=300)
+    plt.close()
+
+    new_df = {'time':datetimes,
+              'linear_fit':fit1y,
+              'residual':residual}
+    new_df = pd.DataFrame(new_df)
+    new_df.to_csv(csv_path1, index=False)
+    new_df = None
+    
+              

@@ -8,6 +8,8 @@ import datetime
 from math import degrees, atan2
 from utils import linear_shoreline_projection as lsp
 from utils import rolling_mean as rm
+from utils import timeseries_analysis_utils as tsa
+from utils import nao_plot_utils as nao
 plt.rcParams["figure.figsize"] = (16,6)
 
 def gb(x1, y1, x2, y2):
@@ -112,12 +114,12 @@ def transect_timeseries(shoreline_shapefile,
     plt.xlim(min(df['datetime']), max(df['datetime']))
     plt.ylim(min(df['distances']), max(df['distances']))
     plt.minorticks_on()
-    plt.xlim(min(df['datetime']), max(df['datetime']))
-    plt.ylim(min(df['distances']), max(df['distances']))
     plt.tight_layout()
     plt.savefig(save_name_png, dpi=300)
     plt.close()
 
+    nao.plot_ts_with_nao(save_name_csv)
+    tsa.main(save_name_csv)
     lsp.plot_timeseries_with_fit(save_name_csv, projection=10)
     rm.plot_timeseries_with_rolling_means_and_linear_fit(save_name_csv, projection=10)
 def batch_transect_timeseries(shorelines,
