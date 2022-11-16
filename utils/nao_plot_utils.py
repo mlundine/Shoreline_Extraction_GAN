@@ -3,7 +3,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import datetime
-plt.rcParams["figure.figsize"] = (16,12)
+plt.rcParams["figure.figsize"] = (16,10)
 
 def plot_ts_with_nao(data_csv):
 
@@ -21,25 +21,31 @@ def plot_ts_with_nao(data_csv):
     nao_dates = np.array(nao_dates)
 
 
-    pos_idx = np.where(nao_data >= 0)
-    neg_idx = np.where(nao_data < 0)
-
+    pos_idx = np.where(nao_data >= 0.0)[0]
+    neg_idx = np.where(nao_data < 0.0)[0]
+    
     
     
     df = pd.read_csv(data_csv)
     df.reset_index()
     df = df.dropna()
     datetime_strings = df['datetime']
+    shore_pos = df['distances']
     datetimes_shore = [None]*len(datetime_strings)
     for i in range(len(datetimes_shore)):
         datetime_str = datetime_strings[i]
         t = datetime.datetime.strptime(datetime_str, '%Y-%m-%d %H:%M:%S')
         datetimes_shore[i]=t
     datetimes_shore = np.array(datetimes_shore)
-    
+
+
+    new_df = pd.DataFrame({'shoreline':list(shore_pos)},
+                          index=list(datetimes_shore))
+    y1 = new_df.rolling('91D', min_periods=1).mean()
+
     #make and save timeseries plot
     plt.subplot(2,1,1)
-    plt.plot(datetimes_shore, df['distances'], color='k')
+    plt.plot(datetimes_shore, y1, color='k')
     plt.xlabel('Time (UTC)')
     plt.ylabel('Cross-Shore Position (m)')
     plt.xlim(min(datetimes_shore), max(datetimes_shore))
@@ -47,8 +53,8 @@ def plot_ts_with_nao(data_csv):
     plt.minorticks_on()
     
     plt.subplot(2,1,2)
-    plt.bar(nao_dates[pos_idx], nao_data[pos_idx], color='blue')
-    plt.bar(nao_dates[neg_idx], nao_data[neg_idx], color='red')
+    plt.bar(nao_dates[pos_idx], nao_data[pos_idx], color='blue', width=3)
+    plt.bar(nao_dates[neg_idx], nao_data[neg_idx], color='red',width=3)
     plt.ylabel('North Atlantic Oscillation')
     plt.xlim(min(datetimes_shore), max(datetimes_shore))
     plt.ylim(min(nao_data), max(nao_data))
@@ -56,3 +62,4 @@ def plot_ts_with_nao(data_csv):
     plt.tight_layout()
     plt.savefig(save_name_png, dpi=300)
     plt.close()
+
