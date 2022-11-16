@@ -194,7 +194,8 @@ Type in your site name. If your transects were oriented in the opposite directio
 Next, hit Create Timeseries. This will ask for the shapefile containing all of the shorelines.
 Next, it will ask for your transect shapefile.
 Next, you need to tell it where to save the timeseries data. 
-Best to make a new directory to save this stuff (timeseries plots and csvs containing data for each transect) to.
+Best to make a new directory to save this stuff to.
+(timeseries plots, timeseries with yearly linear trend, power spectrum, timeseries running means, timeseries with NAO index, and csvs containing data for each transect)
 
 # Project Timeseries
 
