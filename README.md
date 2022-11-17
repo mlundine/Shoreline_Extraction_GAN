@@ -15,7 +15,7 @@ This repo will (eventually) contain the following:
 8. Code to train and run LSTM models for shoreline projection.
 9. Possible integration of NOAA wave buoy data and/or WaveWatch3 data (pending).
 
-# Examples
+# Examples (all data/results are preliminary at this point)
 
 ![cape_ex](/images/capehenlopen_ex.png)
 
@@ -48,6 +48,10 @@ This repo will (eventually) contain the following:
 # Cape Henlopen Cross-Shore Position with LSTM Projection
 
 ![cape_lstm](/images/Delmarva_140_lstm_proj.png)
+
+# North Tuscany Yearly Trends
+
+![tuscany_trends](/images/tuscany_trends.png)
 
 # Current Shoreline Extraction Training Data Domain
 
