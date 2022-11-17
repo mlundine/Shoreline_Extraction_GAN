@@ -108,15 +108,16 @@ Pick a site name and enter this in the name text box.
 
 Select a range of dates and enter these in the start and end date text boxes. 
 
-You will need the corner coordinates to download imagery.
+You will need the corner coordinates to download imagery:
 
-(upper left longitude, upper left latitude)
+* (upper left longitude, upper left latitude)
 
-(upper right longitude, upper right latitude)
+* (upper right longitude, upper right latitude)
 
-(lower right longitude, lower right latitude)
+* (lower right longitude, lower right latitude)
 
-(lower left longitude, lower left latitude)
+* (lower left longitude, lower left latitude)
+
 
 Then select which satellites you would like to pull imagery from (L5, L7, L8, and/or S2).
 
@@ -157,11 +158,12 @@ The processed directory will have four subdirectories: kml_merged, shapefile_mer
 kml_merged/ will contain all extracted shorelines in two separate kmls for each side of the split images.
 
 
-shapefile_merged/ will contain six shapefiles (three for each side).
-The first two contain all of the extracted shorelines.
-The next two (with suffix simplify20) contain the extracted shorelines simplfied to only having vertices every 20 m.
-The next two (with suffix simplify20vtx) contain the simplified shorelines filtered by number of vertices with a recursive three-sigma filter.
-The last two (with suffix simplify20vtxsmooth) contain the simplified and filtered shorelines smoothed out with Chaikens algorithm.
+shapefile_merged/ will contain six shapefiles (three for each side):
+
+* The first two contain all of the extracted shorelines.
+* The next two (with suffix simplify20) contain the extracted shorelines simplfied to only having vertices every 20 m.
+* The next two (with suffix simplify20vtx) contain the simplified shorelines filtered by number of vertices with a recursive three-sigma filter.
+* The last two (with suffix simplify20vtxsmooth) contain the simplified and filtered shorelines smoothed out with Chaikens algorithm.
 
 
 The last two shapefiles should have the best results. The vertex filter is used to filter out erroneous shorelines that were extracted from noisy imagery.
@@ -218,7 +220,7 @@ Best to make a new directory to save this stuff to:
 * 3-month, 6-month, and yearly running means with linear trend figure
 * Power spectrum figure
 * 3-month running mean with NAO figure
-* De-trended timeseries
+* De-trended timeseries figure
 * Yearly trend data (datetime, predicted cross-shore distance, residual)
 
 This tool will also make a new transects shapefile with the yearly trend values added as a field.
