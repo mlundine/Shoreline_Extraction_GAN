@@ -120,10 +120,11 @@ def transect_timeseries(shoreline_shapefile,
 
     nao.plot_ts_with_nao(save_name_csv)
     tsa.main(save_name_csv)
-    lsp.plot_timeseries_with_fit(save_name_csv, projection=10)
+    slope = lsp.plot_timeseries_with_fit(save_name_csv, projection=10)
     rm.plot_timeseries_with_rolling_means_and_linear_fit(save_name_csv, projection=10)
+    return slope
 def batch_transect_timeseries(shorelines,
-                              transects,
+                              transects_path,
                               sitename,
                               output_folder,
                               switch_dir=False):
@@ -141,17 +142,21 @@ def batch_transect_timeseries(shorelines,
     output_folder (str): path to save csvs and png figures to
     switch_dir (optional): default is False, set to True if transects are in the opposite direction
     """
-    transects = gpd.read_file(transects)
+    transects_path_name = os.path.splitext(transects_path)[0]+'_trends.shp'
+    transects = gpd.read_file(transects_path)
     transects = transects.reset_index()
+    slopes = [None]*len(transects)
     for i in range(len(transects)):
         transect = transects[transects['index']==i]
         transect = transect.reset_index()
-        transect_timeseries(shorelines,
-                            transect,
-                            sitename,
-                            i,
-                            output_folder,
-                            switch_dir=switch_dir,
-                            batch=True)
-
+        slope = transect_timeseries(shorelines,
+                                    transect,
+                                    sitename,
+                                    i,
+                                    output_folder,
+                                    switch_dir=switch_dir,
+                                    batch=True)
+        slopes[i] = slope
+    transects['yearly_trend'] = slopes
+    transects.to_file(transects_path_name)
 

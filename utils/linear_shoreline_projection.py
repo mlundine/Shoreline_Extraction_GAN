@@ -102,5 +102,6 @@ def plot_timeseries_with_fit(data, projection=10):
     new_df = pd.DataFrame(new_df)
     new_df.to_csv(csv_path1, index=False)
     new_df = None
+    return slope1
     
               

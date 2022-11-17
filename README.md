@@ -171,7 +171,7 @@ The simplifying and smoothing helps remove sharp edges from the extracted shorel
 shapefiles/ will contain individual shoreline shapefiles for each image.
 
 
-shoreline_images/ will contain black and white images with the extracted shorelines.
+shoreline_images/ will contain RGB images with the extracted shorelines.
 
 
 The best results come from editing the simplify20vtxsmooth shapefiles in GIS software.
@@ -188,7 +188,8 @@ You need a shapefile containing a reference shoreline to do this.
 Look in shoreline_images/ for a good example, and then find the corresponding shapefile in shapefiles/
 Copy this file and put it in its own folder.
 
-Select an alongshore spacing between transects, and a cross-shore length.
+Select an alongshore spacing between transects, and a cross-shore length. 
+The cross-shore length should be long enough to intersect all extracted shorelines at each transect.
 
 Hit Select Reference Shoreline Shapefile, and point it to your reference shoreline. 
 It will save the transects output to the same directory of the reference shoreline.
@@ -201,12 +202,27 @@ Hit Make Timeseries.
 
 ![timeseries](/images/make_timeseries_screen.JPG)
 
-Type in your site name. If your transects were oriented in the opposite direction of the ocean, check switch transect direction.
+Type in your site name. If your transects were oriented in the opposite direction of the ocean/sea/lake, check switch transect direction.
+
 Next, hit Create Timeseries. This will ask for the shapefile containing all of the shorelines.
+
 Next, it will ask for your transect shapefile.
-Next, you need to tell it where to save the timeseries data. 
-Best to make a new directory to save this stuff to.
-(timeseries plots, timeseries with yearly linear trend, power spectrum, timeseries running means, timeseries with NAO index, and csvs containing data for each transect)
+
+Next, you need to tell it where to save the timeseries data.
+ 
+Best to make a new directory to save this stuff to:
+
+* Raw timeseries data (datetime, northings, eastings, cross-shore distance)
+* Raw timeseries figure
+* Raw timeseries with yearly linear trend figure
+* 3-month, 6-month, and yearly running means with linear trend figure
+* Power spectrum figure
+* 3-month running mean with NAO figure
+* De-trended timeseries
+* Yearly trend data (datetime, predicted cross-shore distance, residual)
+
+This tool will also make a new transects shapefile with the yearly trend values added as a field.
+This file will be saved in the same directory as the original transect shapefile.
 
 # Project Timeseries
 
@@ -217,14 +233,32 @@ Hit Project Timeseries
 Using LSTMs to project cross-shore positions into the future. 
 
 To use this tool, you should have a folder with all of the cross-shore timeseries for your study areas (defined by a transect number).
-You will need to input a site name, a starting and ending index (transect number to start and stop at), the number of epochs to train each LSTM for,
-the batch size for training the LSTM, the number of layers in the LSTM, the look-back value for the LSTM, the number of predictions, 
-and the number of times to repeat training to get a confidence interval for the projections. The default values have so far been good, but will
-depend upon the different datasets used. Fine-tuning of various values (epochs, batch size, layers, look-back values, predictions, repeats) 
-would be beneficial to get the best results. Currently, the LSTM is trained to project shorelines at 3-month intervals, so with a number of 
+
+You will need to input the following:
+
+* a site name
+* a starting and ending index (transect number to start and stop at)
+* the number of epochs to train each LSTM for
+* the batch size for training the LSTM
+* the number of layers in the LSTM
+* the look-back value for the LSTM
+* the number of predictions, 
+* the number of times to repeat training to get a confidence interval for the projections
+
+The default values have so far been promising, but will depend upon the different datasets used. 
+
+Fine-tuning of various values (epochs, batch size, layers, look-back values, predictions, repeats) 
+would be beneficial to get the best results. 
+
+Currently, the LSTM is trained to project shorelines at 3-month intervals, so with a number of 
 predicitons equal to 40, it is projecting ten years from the last observed satellite shoreline (4 predictions per year, 40 predictions per ten years).
 
 Upon clicking Run, you will need to feed it the folder with the extracted timeseries, and then make a new folder to save the projections to.
+
+For each transect it will save to the projected folder:
+
+* CSV containing projected values (datetime, mean projected cross-shore distance, upper 95% confidence bound, lower 95% confidence bound)
+* Timeseries figure with the 3-month moving average and then the projected data
 
 # Merge Projections
 
@@ -234,11 +268,18 @@ Hit Merge Projections
 
 This function will merge the timeseries projections into 2D shorelines and 95% confidence polygons for each projected time.
 
-Provide it the site name, the number of transects, the EPSG code for the coordinate system used (whatever EPSG code that corresponds to the study area's WGS84/UTM zone), and 
-whether or not the transects are running in the opposite direction of the water and need to be flipped.
+Input the following:
 
-Upon clicking Run, you will need to feed it the folder holding the extracted timeseries, then the folder holding the projected timeseries, and then the shapefile holding the transects.
-It will save the two shapefiles (projected shorelines and projected confidence intervals) into the projected timeseries folder. It will also add northings and eastings as columns to each
+* the site name
+* the number of transects
+* the EPSG code for the coordinate system used (whatever EPSG code that corresponds to the study area's WGS84/UTM zone)
+* whether or not the transects are running in the opposite direction of the water and need to be flipped.
+
+Upon clicking Run, you will need to feed it the folder holding the extracted timeseries, 
+then the folder holding the projected timeseries, and then the shapefile holding the transects.
+
+It will save the two shapefiles (projected shorelines and projected confidence intervals) into the projected timeseries folder. 
+It will also add northings and eastings as columns to each
 projected timeseries csv.
 
 
