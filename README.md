@@ -51,7 +51,7 @@ This repo will (eventually) contain the following:
 
 # Cape Henlopen Yearly Trends
 
-![cape_trends](/images/cape_trends.JPG)
+![cape_trends](/images/trends_cape.JPG)
 
 # Current Shoreline Extraction Training Data Domain
 
