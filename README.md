@@ -49,9 +49,9 @@ This repo will (eventually) contain the following:
 
 ![cape_lstm](/images/Delmarva_140_lstm_proj.png)
 
-# North Tuscany Yearly Trends
+# Cape Henlopen Yearly Trends
 
-![tuscany_trends](/images/tuscany_trends.png)
+![cape_trends](/images/cape_trends.JPG)
 
 # Current Shoreline Extraction Training Data Domain
 
