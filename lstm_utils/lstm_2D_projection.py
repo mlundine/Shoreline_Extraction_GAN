@@ -100,9 +100,14 @@ def multiple_transects(projection_df_path_list,
     One that contains mean LSTM shoreline projections (so lines with a timestamp)
     ONe that contains confidence interval polygons (polygons with a timestamp)
     """
-    mean_savepath = os.path.join(savefolder, sitename+'_mean_shorelines.shp')
+    mean_savepath = os.path.join(savefolder, sitename+'_'+str(transect_ids[0])+'to'+str(transect_ids[-1])+'_mean_shorelines.shp')
     conf_savepath = os.path.join(savefolder, sitename+'_confidence_intervals.shp')
     time = projection_times
+    years = [None]*len(time)
+    for i in range(len(time)):
+        ts = time[i]
+        year = ts[0:4]
+        years[i] = int(year)
     
     new_proj_path_list = [None]*len(projection_df_path_list)
     for i in range(len(projection_df_path_list)):
@@ -116,11 +121,13 @@ def multiple_transects(projection_df_path_list,
         new_proj_path_list[i] = new_projection_df_path
 
     ###Should have length of projected time
-    shapefile_mean_dict = {'Timestamp':time}
+    shapefile_mean_dict = {'Timestamp':time,
+                           'Year':years}
     shapefile_mean_df = pd.DataFrame(shapefile_mean_dict)
     shapefile_mean_geoms = [None]*len(shapefile_mean_df)
 
-    shapefile_confidence_intervals_dict = {'Timestamp':time}
+    shapefile_confidence_intervals_dict = {'Timestamp':time,
+                                           'Year':years}
     shapefile_confidence_intervals_df = pd.DataFrame(shapefile_confidence_intervals_dict)
     shapefile_confidence_intervals_geoms = [None]*len(shapefile_confidence_intervals_df)
     ###Loop over projected time
@@ -162,7 +169,8 @@ def multiple_transects(projection_df_path_list,
     shapefile_confidence_intervals_geodf.to_file(conf_savepath)
 
 def main(sitename,
-         transect_id_range,
+         transect_id_min,
+         transect_id_max,
          projected_folder,
          extracted_folder,
          save_folder,
@@ -182,7 +190,7 @@ def main(sitename,
     epsg: epsg code (int)
     switch_dir: Optional, if True, then transect direction is reversed
     """
-    transect_ids = range(transect_id_range)
+    transect_ids = range(transect_id_min, transect_id_max+1)
     projection_df_path_list = [None]*len(transect_ids)
     extracted_df_path_list = [None]*len(projection_df_path_list)
     for j in range(len(transect_ids)):
@@ -204,11 +212,4 @@ def main(sitename,
                        epsg,
                        switch_dir=False)
     
-##main('CapeHenlopen',
-##     235,
-##     r'D:\Shoreline_Extraction_GAN\model_outputs\processed\CapeHenlopenNew\projected',
-##     r'D:\Shoreline_Extraction_GAN\model_outputs\processed\CapeHenlopenNew\transects',
-##     r'D:\Shoreline_Extraction_GAN\model_outputs\processed\CapeHenlopenNew\projected',
-##     r'D:\Shoreline_Extraction_GAN\model_outputs\processed\CapeHenlopenNew\CapeHenlopen_reference_shoreline_transects_15m.shp',
-##     32618,
-##     )
+

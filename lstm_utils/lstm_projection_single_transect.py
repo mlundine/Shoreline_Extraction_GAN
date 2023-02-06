@@ -7,6 +7,8 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 import tensorflow as tf
 from tensorflow import keras
 from tensorflow.keras.preprocessing.sequence import TimeseriesGenerator
+from tensorflow.keras.callbacks import EarlyStopping
+from tensorflow.keras.callbacks import ModelCheckpoint
 import numpy as np
 import gc
 plt.rcParams["figure.figsize"] = (16,6)
@@ -20,7 +22,7 @@ def get_shoreline_data(csv_path):
     new_df = new_df.drop_duplicates('datetime', 'last')
     new_df = new_df.set_index(['datetime'])
     new_df = new_df.dropna()
-    y_rolling = new_df.rolling('91D', min_periods=1).mean()
+    y_rolling = new_df.rolling('365D', min_periods=1).mean()
     y1 = y_rolling.resample('91D').ffill()
     y1 = y1.dropna()
     df=y1
@@ -28,7 +30,7 @@ def get_shoreline_data(csv_path):
     df.set_axis(df['Date'], inplace=True)
     return df
 
-def setup_data(df, look_back, batch_size, split_percent=0.90):
+def setup_data(df, look_back, batch_size, split_percent=0.80):
     shore_data = df['value'].values
     shore_data = shore_data.reshape((-1,1))
 
@@ -65,13 +67,18 @@ def train_model(train_generator, test_generator, look_back, units=30, num_epochs
     model = Sequential()
     model.add(
         LSTM(units,
-            activation='relu',
-            input_shape=(look_back,1))
+             activation='relu',
+             input_shape=(look_back,1),
+             recurrent_dropout=0.3)
     )
     model.add(Dense(1))
     model.compile(optimizer='adam', loss='mse')
-
-    model.fit_generator(train_generator, epochs=num_epochs, verbose=0)
+    early_stopping_callback = EarlyStopping(monitor='val_loss', patience=5, mode='auto', restore_best_weights=True)
+    history = model.fit_generator(train_generator,
+                                  epochs=num_epochs,
+                                  callbacks=[early_stopping_callback],
+                                  validation_data=test_generator,
+                                  verbose=1)
 
 
     prediction = model.predict_generator(test_generator)
@@ -133,10 +140,10 @@ def run(csv_path,
         folder,
         bootstrap=30,
         num_prediction=40,
-        epochs=40,
-        units=30,
-        batch_size=20,
-        lookback=9):
+        epochs=35,
+        units=20,
+        batch_size=32,
+        lookback=4):
     look_back=lookback
     num_prediction=num_prediction
     bootstrap=bootstrap

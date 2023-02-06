@@ -16,7 +16,46 @@ import geopandas as gpd
 import shapely
 warnings.filterwarnings("ignore")
 
-def simplify_lines(shapefile, tolerance=20):
+def arr_to_LineString(coords):
+    """
+    Makes a line feature from a list of xy tuples
+    inputs: coords
+    outputs: line
+    """
+    points = [None]*len(coords)
+    i=0
+    for xy in coords:
+        points[i] = shapely.geometry.Point(xy)
+        i=i+1
+    line = shapely.geometry.LineString(points)
+    return line
+
+def LineString_to_arr(line):
+    listarray = []
+    for pp in line.coords:
+        listarray.append(pp)
+    nparray = np.array(listarray)
+    return nparray
+
+def simplify_and_smooth_arr(contour, name):
+    line = arr_to_LineString(contour)
+    
+    idx_L5 = name.find('L5')
+    idx_L7 = name.find('L7')
+    idx_L8 = name.find('L8')
+    idx_S2 = name.find('S2')
+
+    if idx_S2 > 0:
+        simplify_tolerance = 10
+    else:
+        simplify_tolerance = 30
+    
+    simple = line.simplify(tolerance=1)
+    simple_arr = LineString_to_arr(simple)
+    simple_smooth_arr = chaikins_corner_cutting(simple_arr)
+    return simple_smooth_arr
+
+def simplify_lines(shapefile, tolerance=40):
     """
     Uses shapely simplify function to smooth out the extracted shorelines
     inputs:
@@ -31,6 +70,38 @@ def simplify_lines(shapefile, tolerance=20):
     lines['geometry'] = lines['geometry'].simplify(tolerance)
     lines.to_file(save_path)
     return save_path
+
+def simplify_and_smooth(shapefile):
+
+    name = os.path.basename(shapefile)
+    dirname = os.path.dirname(shapefile)
+    dirname = os.path.dirname(dirname)
+    
+    idx_L5 = name.find('L5')
+    idx_L7 = name.find('L7')
+    idx_L8 = name.find('L8')
+    idx_S2 = name.find('S2')
+
+    if idx_S2 > 0:
+        tolerance = 10
+    else:
+        tolerance = 30
+
+
+    
+    simple_folder = os.path.join(dirname, 'simple')
+    try:
+        os.mkdir(simple_folder)
+    except:
+        pass
+    simple_save_path = os.path.join(simple_folder, os.path.splitext(name)[0]+'simplify'+str(tolerance)+'.shp')
+    lines = gpd.read_file(shapefile)
+    lines['geometry'] = lines['geometry'].simplify(tolerance)
+    lines.to_file(simple_save_path)
+
+    simple_smooth = smooth_lines(simple_save_path)
+    
+    return simple_smooth
 
 def vertex_filter(shapefile):
     gdf = gpd.read_file(shapefile)
@@ -71,22 +142,15 @@ def chaikins_corner_cutting(coords, refinements=5):
         i=i+1
     return coords
 
-def arr_to_LineString(coords):
-    """
-    Makes a line feature from a list of xy tuples
-    inputs: coords
-    outputs: line
-    """
-    points = [None]*len(coords)
-    i=0
-    for xy in coords:
-        points[i] = shapely.geometry.Point(xy)
-        i=i+1
-    line = shapely.geometry.LineString(points)
-    return line
-
 def smooth_lines(shapefile):
-    save_path = os.path.splitext(shapefile)[0]+'smooth.shp'
+    dirname = os.path.dirname(shapefile)
+    dirname = os.path.dirname(dirname)
+    smooth_folder = os.path.join(dirname, 'smooth')
+    try:
+        os.mkdir(smooth_folder)
+    except:
+        pass
+    save_path = os.path.join(smooth_folder,os.path.splitext(os.path.basename(shapefile))[0]+'smooth.shp')
     lines = gpd.read_file(shapefile)
     new_lines = lines.copy()
     for i in range(len(lines)):
@@ -232,11 +296,45 @@ def get_geo_info(image, coords_file):
         pass
     return [xmin,xmax,ymin,ymax,xres,yres],epsg
 
+def filter_with_reference_shoreline(reference_shoreline, model_shorelines, distance_threshold=250):
+    save_path = os.path.splitext(model_shorelines)[0]+'_ref_shoreline_filter.shp'
 
+
+    reference_shp = gpd.read_file(reference_shoreline)
+    buffer = reference_shp.buffer(distance_threshold,resolution=1)
+    model_shp = gpd.read_file(model_shorelines)
+    buffer_vals = [None]*len(model_shp)
+    for i in range(len(model_shp)):
+        line_entry = model_shp.iloc[i]
+        line = line_entry.geometry
+        bool_val = buffer.contains(line).values[0]
+        buffer_vals[i] = bool_val
+    model_shp['buffer_vals'] = buffer_vals
+    model_shp_filter = model_shp[model_shp['buffer_vals']]
+    model_shp_filter.to_file(save_path)
+
+    return save_path
+
+def filter_with_reference_region(reference_region_path, model_shorelines):
+    save_path = os.path.splitext(model_shorelines)[0]+'_ref_region_filter.shp'
+    reference_region = gpd.read_file(reference_region_path)
+    model_shp = gpd.read_file(model_shorelines)
+    buffer_vals = [None]*len(model_shp)
+    for i in range(len(model_shp)):
+        line_entry = model_shp.iloc[i]
+        line = line_entry.geometry
+        bool_val = reference_region.contains(line).values[0]
+        buffer_vals[i] = bool_val
+    model_shp['buffer_vals'] = buffer_vals
+    model_shp_filter = model_shp[model_shp['buffer_vals']]
+    model_shp_filter.to_file(save_path)
+
+    return save_path
 def extract_shorelines(pix2pix_outputs,
                        coords_file,
                        site_folder,
-                       input_data):
+                       input_data,
+                       clip_length=150):
     """
     Uses cv2.findContours to convert binary image from pix2pix to a shoreline feature class
     inputs:
@@ -336,7 +434,27 @@ def extract_shorelines(pix2pix_outputs,
                 maxlength=maxlength
             i=i+1
         contour_two = contours_gis_two[idx]
+
+        # save the results, image+shoreline overlay, shapefile
+        name_one = os.path.splitext(os.path.basename(one_real))[0]
+        name_two = os.path.splitext(os.path.basename(two_real))[0]
+        idx = name_one.find('one')
+        name = name_one[0:idx]
         
+        #clipping ends
+        idx_L5 = name.find('L5')
+        idx_L7 = name.find('L7')
+        idx_L8 = name.find('L8')
+        idx_S2 = name.find('S2')
+
+        if idx_S2 > 0:
+            clip_units = int(clip_length/10)
+        else:
+            clip_units = int(clip_length/30)
+
+        contour_one = contour_one[clip_units:-clip_units]
+        contour_two = contour_two[clip_units:-clip_units]
+
         # get in utm coordinates
         geo_info_one,epsg_one = get_geo_info(one_real, coords_file)
         epsg_one=int(epsg_one)
@@ -348,22 +466,29 @@ def extract_shorelines(pix2pix_outputs,
         geo_points_two = translate_to_geo(contour_two, geo_info_two, two_fake)
 
 
-        # save the results, image+shoreline overlay, shapefile
-        name_one = os.path.splitext(os.path.basename(one_real))[0]
-        name_two = os.path.splitext(os.path.basename(two_real))[0]
-        idx = name_one.find('one')
-        name = name_one[0:idx]
-        
 
+        
+        
         geo_points_one = geo_points_one
         geo_points_two = geo_points_two
         line1 = myLine(geo_points_one)
         line2 = myLine(geo_points_two)
+
+
+        x_one = contour_one[:,0]
+        y_one = contour_one[:,1]
+        contour_one_nice = list(zip(x_one, y_one))
+        contour_one_simple_smooth = simplify_and_smooth_arr(contour_one_nice, name_one)
+
+        x_two = contour_two[:,0]
+        y_two = contour_two[:,1]
+        contour_two_nice = list(zip(x_two,y_two))
+        contour_two_simple_smooth = simplify_and_smooth_arr(contour_two_nice, name_two)
             
         # saving shoreline overlay images
         shoreline_save = os.path.join(site_folder, 'shoreline_images')    
         name_im_one = os.path.join(shoreline_save, name_one+'overlayshore.png')
-        name_im_two = os.path.join(shoreline_save, name_two+'overlayshore.png')    
+        name_im_two = os.path.join(shoreline_save, name_two+'overlayshore.png')   
 
         # draw contours on the original image
         one_real_copy = cv2.cvtColor(cv2.imread(one_rgb).copy(), cv2.COLOR_BGR2RGB)
@@ -373,7 +498,7 @@ def extract_shorelines(pix2pix_outputs,
         fig, ax = plt.subplots()
         ax.imshow(one_real_copy,interpolation='nearest')
 
-        ax.plot(contour_one[:, 1], contour_one[:, 0], linewidth=1,color='g')
+        ax.plot(contour_one_simple_smooth[:, 1], contour_one_simple_smooth[:, 0], linewidth=1,color='g')
 
         ax.axis('image')
         ax.set_xticks([])
@@ -385,7 +510,7 @@ def extract_shorelines(pix2pix_outputs,
         fig, ax = plt.subplots()
         ax.imshow(two_real_copy,interpolation='nearest')
 
-        ax.plot(contour_two[:, 1], contour_two[:, 0], linewidth=1,color='g')
+        ax.plot(contour_two_simple_smooth[:, 1], contour_two_simple_smooth[:, 0], linewidth=1,color='g')
 
         ax.axis('image')
         ax.set_xticks([])
@@ -395,19 +520,34 @@ def extract_shorelines(pix2pix_outputs,
 
         # saving shapefile
         shapefile_save_one = os.path.join(site_folder, 'shapefiles', 'one')
+        shapefile_save_one_raw = os.path.join(shapefile_save_one, 'raw')
         shapefile_save_two = os.path.join(site_folder, 'shapefiles', 'two')
+        shapefile_save_two_raw = os.path.join(shapefile_save_two, 'raw')
         try:
             os.mkdir(shapefile_save_one)
+        except:
+            pass
+        try:
+            os.mkdir(shapefile_save_one_raw)
         except:
             pass
         try:
             os.mkdir(shapefile_save_two)
         except:
             pass
-        name_shape_1 = os.path.join(shapefile_save_one, name_one+'shore.shp')
-        name_shape_2 = os.path.join(shapefile_save_two, name_two+'shore.shp')
-        writePolyLineShp(line1,name_shape_1,epsg_one)
-        writePolyLineShp(line2, name_shape_2, epsg_two)
+        try:
+            os.mkdir(shapefile_save_two_raw)
+        except:
+            pass
+
+        name_shape_1 = os.path.join(shapefile_save_one_raw, name_one+'shore.shp')
+        name_shape_2 = os.path.join(shapefile_save_two_raw, name_two+'shore.shp')
+        
+        save_path1 = writePolyLineShp(line1, name_shape_1,epsg_one)
+        save_path2 = writePolyLineShp(line2, name_shape_2,epsg_two)
+
+        simplify_and_smooth(save_path1)
+        simplify_and_smooth(save_path2)
 
 def merge_shapefiles(shapefile_folder,
                      shapefile_merged,
@@ -430,7 +570,11 @@ def process(pix2pix_outputs,
             site,
             coords_file,
             output_folder,
-            input_data):
+            input_data,
+            reference_shoreline=None,
+            reference_region=None,
+            distance_threshold=250,
+            clip_length=150):
     """
     Takes pix2pix outputs, extracts shorelines, outputs results in various formats
     inputs:
@@ -462,37 +606,57 @@ def process(pix2pix_outputs,
     extract_shorelines(pix2pix_outputs,
                        coords_file,
                        site_folder,
-                       input_data)
+                       input_data,
+                       clip_length=clip_length)
 
     ##Merge shapefiles into one
-    shapefile1 = merge_shapefiles(os.path.join(shapefile_folder, 'one'),
+    shapefile1 = merge_shapefiles(os.path.join(shapefile_folder, 'one', 'smooth'),
                                   shapefile_merged,
                                   'one',
                                   site)
     ##Merge shapefiles into one
-    shapefile2 = merge_shapefiles(os.path.join(shapefile_folder, 'two'),
+    shapefile2 = merge_shapefiles(os.path.join(shapefile_folder, 'two', 'smooth'),
                                   shapefile_merged,
                                   'two',
                                   site)
-
-
-    #simplify
-    simple1 = simplify_lines(shapefile1)
-    simple2 = simplify_lines(shapefile2)
     
-    #Filter
-    vtx_1 = vertex_filter(simple1)
-    vtx_2 = vertex_filter(simple2)
     
-    ##Smooth the lines
-    smooth_shapefile1 = smooth_lines(vtx_1)
-    smooth_shapefile2 = smooth_lines(vtx_2)
 
-
+    #Filters
+    if reference_shoreline != None: 
+        shore_1 = filter_with_reference_shoreline(reference_shoreline, shapefile1, distance_threshold=distance_threshold)
+        shore_2 = filter_with_reference_shoreline(reference_shoreline, shapefile2, distance_threshold=distance_threshold)
+        final_1 = vertex_filter(shore_1)
+        final_2 = vertex_filter(shore_2)
+        if reference_region != None:
+            region_1 = filter_with_reference_region(reference_region, shapefile1)
+            region_2 = filter_with_reference_region(reference_region, shapefile2)
+            final_1 = vertex_filter(region_1)
+            final_2 = vertex_filter(region_2)
+    elif reference_region != None:
+        region_1 = filter_with_reference_region(reference_region, shapefile1)
+        region_2 = filter_with_reference_region(reference_region, shapefile2)
+        final_1 = vertex_filter(region_1)
+        final_2 = vertex_filter(region_2)
+    else:
+        final_1 = vertex_filter(shapefile1)
+        final_2 = vertex_filter(shapefile2)
     
     ##Convert merged shapefile to kml
-    kml_line(smooth_shapefile1, os.path.join(kml_folder, site+'_one_merged.kml'))
-    kml_line(smooth_shapefile2, os.path.join(kml_folder, site+'_two_merged.kml'))
+    kml_line(final_1, os.path.join(kml_folder, site+'_one_merged.kml'))
+    kml_line(final_2, os.path.join(kml_folder, site+'_two_merged.kml'))
         
+
+
+
+
+
+
+
+
+
+
+
+
 
 

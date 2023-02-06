@@ -5,6 +5,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import geopandas as gpd
 import datetime
+import gc
 from math import degrees, atan2
 from utils import linear_shoreline_projection as lsp
 from utils import rolling_mean as rm
@@ -53,26 +54,25 @@ def transect_timeseries(shoreline_shapefile,
     bearing = gb(first.x, first.y, last.x, last.y)
     if switch_dir == True:
         bearing = bearing-180
-    #get intersection points
-    northings = [None]*len(shoreline_df)
-    eastings = [None]*len(shoreline_df)
-    dates = [None]*len(shoreline_df)
-    # loop through shorelines and compute the intersection    
-    for i in range(len(shoreline_df)):
-        sl = shoreline_df[shoreline_df['index']==i]
-        try:
-            point = sl.unary_union.intersection(transect_df.unary_union)
-            easting = point.x
-            northing = point.y
-        except:
-            continue
 
+    #filter shorelines
+    shoreline_df_filter_bool = shoreline_df.intersects(transect_df.unary_union)
+    shoreline_df_filter = shoreline_df[shoreline_df_filter_bool]
+    shoreline_df_filter = shoreline_df_filter.reset_index()
+    
+    #get intersection points
+    points = shoreline_df_filter.intersection(transect_df.unary_union)
+    northings = np.array(points.y)
+    eastings = np.array(points.x)
+    #get dates
+    dates = shoreline_df_filter['timestamp']
+    datetimes = [None]*len(dates)
+    for i in range(len(datetimes)):
+        datetime_str = dates[i]
+        t = datetime.datetime.strptime(datetime_str, '%Y-%m-%d-%H-%M-%S')
+        datetimes[i] = t
         
-        northings[i] = northing
-        eastings[i] = easting
-        date = sl['timestamp'].reset_index().values[0][1]
-        dates[i] = datetime.datetime(*map(int, date.split('-'))) 
-    df_dict = {'datetime':dates,
+    df_dict = {'datetime':datetimes,
                'northings':northings,
                'eastings':eastings}
     df = pd.DataFrame(df_dict)
@@ -122,11 +122,20 @@ def transect_timeseries(shoreline_shapefile,
     tsa.main(save_name_csv)
     slope = lsp.plot_timeseries_with_fit(save_name_csv, projection=10)
     rm.plot_timeseries_with_rolling_means_and_linear_fit(save_name_csv, projection=10)
+    df = None
+    shoreline_df = None
+    northings = None
+    eastings = None
+    dates = None
+    transect_df = None
+    shoreline_df_filter = None
+    gc.collect()
     return slope
 def batch_transect_timeseries(shorelines,
                               transects_path,
                               sitename,
                               output_folder,
+                              start,
                               switch_dir=False):
     """
     Generates timeseries of shoreline cross-shore position
@@ -146,7 +155,7 @@ def batch_transect_timeseries(shorelines,
     transects = gpd.read_file(transects_path)
     transects = transects.reset_index()
     slopes = [None]*len(transects)
-    for i in range(len(transects)):
+    for i in range(start, len(transects)):
         transect = transects[transects['index']==i]
         transect = transect.reset_index()
         slope = transect_timeseries(shorelines,

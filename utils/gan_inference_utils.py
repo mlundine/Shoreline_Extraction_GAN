@@ -53,7 +53,11 @@ def run_and_process(site,
                     source,
                     model_name,
                     coords_file,
-                    epoch='latest'):
+                    epoch='latest',
+                    reference_shoreline=None,
+                    reference_region=None,
+                    distance_threshold=250,
+                    clip_length=150):
     """
     Runs trained pix2pix or cycle-GAN model,
     then runs outputs through marching squares to extract shorelines,
@@ -83,7 +87,12 @@ def run_and_process(site,
                                        site,
                                        coords_file,
                                        outputs_dir,
-                                       source)
+                                       source,
+                                       reference_shoreline=reference_shoreline,
+                                       reference_region=reference_region,
+                                       distance_threshold=distance_threshold,
+                                       clip_length=clip_length)
+
     print('Shorelines Extracted')
 
 

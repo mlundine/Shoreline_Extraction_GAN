@@ -245,6 +245,7 @@ class Window(QMainWindow):
 
     def create_timeseries_button(self,
                                  sitename,
+                                 start_idx,
                                  switch_dir):
         options = QFileDialog.Options()
         shorelines, _ = QFileDialog.getOpenFileName(self,"Select Shorelines Shapefile", "","ESRI Shapefiles (*.shp)", options=options)
@@ -260,6 +261,7 @@ class Window(QMainWindow):
                                                                          transects,
                                                                          sitename,
                                                                          output_folder,
+                                                                         int(start_idx),
                                                                          switch_dir=switch_dir.isChecked())
             
     def timeseries_button(self):
@@ -270,10 +272,20 @@ class Window(QMainWindow):
         sitename_lab = QLabel('Site Name')
         self.vbox.addWidget(sitename_lab, 1, 1)
         self.vbox.addWidget(sitename, 2, 1)
+
+        start_idx = QSpinBox()
+        start_idx.setValue(0)
+        start_idx.setMaximum(99999)
+        start_idx.setMinimum(0)
+        start_idx_lab = QLabel('Starting Index')
+        self.vbox.addWidget(start_idx_lab, 3,1)
+        self.vbox.addWidget(start_idx,4,1)
         
         
         create_timeseries = QPushButton('Create Timeseries')
-        self.vbox.addWidget(create_timeseries, 3, 1)
+        self.vbox.addWidget(create_timeseries, 5, 1)
+
+        
 
         switch_dir_lab = QLabel('Switch Transect Direction')
         switch_dir = QCheckBox()
@@ -285,13 +297,22 @@ class Window(QMainWindow):
                    create_timeseries,
                    switch_dir_lab,
                    switch_dir,
+                   start_idx,
+                   start_idx_lab,
                    exit_button]
         #actions
         exit_button.clicked.connect(lambda: self.exit_buttons(buttons))
-        create_timeseries.clicked.connect(lambda: self.create_timeseries_button(sitename.text(), switch_dir))
+        create_timeseries.clicked.connect(lambda: self.create_timeseries_button(sitename.text(), start_idx.value(), switch_dir))
 
 
-    def run_model_button(self, sitename, model_name, epoch):
+    def run_model_button(self,
+                         sitename,
+                         model_name,
+                         epoch,
+                         reference_shoreline,
+                         reference_region,
+                         distance_threshold,
+                         clip_length):
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
         dataroot = str(QFileDialog.getExistingDirectory(self, "Select Input Image Folder"))
@@ -299,11 +320,57 @@ class Window(QMainWindow):
             options = QFileDialog.Options()
             metadata_csv, _ = QFileDialog.getOpenFileName(self,"Select Site Metadata CSV", "","CSVs (*.csv)", options=options)
             if metadata_csv:
-                gan_inference_utils.run_and_process(sitename,
-                                                    dataroot,
-                                                    model_name,
-                                                    metadata_csv,
-                                                    epoch=epoch)
+                if reference_shoreline.isChecked():
+                    options = QFileDialog.Options()
+                    reference_shoreline, _ = QFileDialog.getOpenFileName(self,"Select Reference Shoreline", "","Shapefiles (*.shp)", options=options)
+                    if reference_region.isChecked():
+                        options = QFileDialog.Options()
+                        reference_region, _ = QFileDialog.getOpenFileName(self,"Select Reference Region", "","Shapefiles (*.shp)", options=options)
+                        if reference_region:
+                            gan_inference_utils.run_and_process(sitename,
+                                                                dataroot,
+                                                                model_name,
+                                                                metadata_csv,
+                                                                epoch=epoch,
+                                                                reference_shoreline=reference_shoreline,
+                                                                reference_region=reference_region,
+                                                                distance_threshold=distance_threshold,
+                                                                clip_length=clip_length)
+                    else:
+                        gan_inference_utils.run_and_process(sitename,
+                                                            dataroot,
+                                                            model_name,
+                                                            metadata_csv,
+                                                            epoch=epoch,
+                                                            reference_shoreline=reference_shoreline,
+                                                            reference_region=None,
+                                                            distance_threshold=distance_threshold,
+                                                            clip_length=clip_length)
+                        
+                elif reference_region.isChecked():
+                    options = QFileDialog.Options()
+                    reference_region, _ = QFileDialog.getOpenFileName(self,"Select Reference Region", "","Shapefiles (*.shp)", options=options)
+                    if reference_region:
+                        gan_inference_utils.run_and_process(sitename,
+                                                        dataroot,
+                                                        model_name,
+                                                        metadata_csv,
+                                                        epoch=epoch,
+                                                        reference_shoreline=None,
+                                                        reference_region=reference_region,
+                                                        distance_threshold=distance_threshold,
+                                                        clip_length=clip_length)
+                else:
+                    gan_inference_utils.run_and_process(sitename,
+                                                        dataroot,
+                                                        model_name,
+                                                        metadata_csv,
+                                                        epoch=epoch,
+                                                        reference_shoreline=None,
+                                                        reference_region=None,
+                                                        distance_threshold=distance_threshold,
+                                                        clip_length=clip_length)
+                    
 
 
         
@@ -321,13 +388,41 @@ class Window(QMainWindow):
         self.vbox.addWidget(sitename_lab, 1, 2)
         self.vbox.addWidget(sitename, 2, 2)
 
+        distance_threshold_lab = QLabel('Distance Threshold for Reference Shoreline Filter')
+        distance_threshold = QSpinBox()
+        distance_threshold.setValue(250)
+        distance_threshold.setMaximum(1500)
+        distance_threshold.setMinimum(10)
+        self.vbox.addWidget(distance_threshold_lab, 5,2)
+        self.vbox.addWidget(distance_threshold, 6, 2)
+        
+
+        clip_length_lab = QLabel('End Clip Length')
+        clip_length = QSpinBox()
+        clip_length.setValue(150)
+        clip_length.setMaximum(750)
+        clip_length.setMinimum(30)
+        self.vbox.addWidget(clip_length_lab,3,2)
+        self.vbox.addWidget(clip_length,4,2)
+
+
+        reference_shoreline_lab = QLabel('Use Reference Shoreline')
+        reference_shoreline = QCheckBox()
+        self.vbox.addWidget(reference_shoreline_lab, 3, 3)
+        self.vbox.addWidget(reference_shoreline, 4, 3)
+
+        reference_region_lab = QLabel('Use Reference Region')
+        reference_region = QCheckBox()
+        self.vbox.addWidget(reference_region_lab, 3, 4)
+        self.vbox.addWidget(reference_region, 4, 4)
+        
         epoch_lab = QLabel('Epoch')
         epoch = QLineEdit()
         self.vbox.addWidget(epoch_lab, 1, 3)
         self.vbox.addWidget(epoch, 2,3)
 
         run_model = QPushButton('Run and Process')
-        self.vbox.addWidget(run_model, 3, 2)
+        self.vbox.addWidget(run_model, 7, 2)
 
 
         buttons = [model_name_lab,
@@ -337,9 +432,23 @@ class Window(QMainWindow):
                    epoch_lab,
                    epoch,
                    run_model,
+                   distance_threshold_lab,
+                   distance_threshold,
+                   clip_length_lab,
+                   clip_length,
+                   reference_shoreline_lab,
+                   reference_shoreline,
+                   reference_region_lab,
+                   reference_region,
                    exit_button]
         #actions
-        run_model.clicked.connect(lambda: self.run_model_button(sitename.text(), model_name.text(), epoch.text()))
+        run_model.clicked.connect(lambda: self.run_model_button(sitename.text(),
+                                                                model_name.text(),
+                                                                epoch.text(),
+                                                                reference_shoreline,
+                                                                reference_region,
+                                                                distance_threshold.value(),
+                                                                clip_length.value()))
         exit_button.clicked.connect(lambda: self.exit_buttons(buttons))        
 
 
@@ -430,7 +539,8 @@ class Window(QMainWindow):
                            epochs,
                            units,
                            batch_size,
-                           lookback):
+                           lookback,
+                           split_percent):
         
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -450,11 +560,13 @@ class Window(QMainWindow):
                                       epochs=epochs,
                                       units=units,
                                       batch_size=batch_size,
-                                      lookback=lookback)
+                                      lookback=lookback,
+                                      split_percent=split_percent)
         
     def run_merge_projections_button(self,
                                      sitename,
-                                     transect_id_range,
+                                     transect_id_min,
+                                     transect_id_max,
                                      epsg,
                                      switch_dir):
         
@@ -470,7 +582,8 @@ class Window(QMainWindow):
                 transect_shp_path, _ = QFileDialog.getOpenFileName(self,"Select Transect Shapefile", "","Shapefiles (*.shp)", options=options)
                 if transect_shp_path:
                     project_shore.main(sitename,
-                                       transect_id_range,
+                                       transect_id_min,
+                                       transect_id_max,
                                        projected_folder,
                                        transect_folder,
                                        projected_folder,
@@ -494,7 +607,7 @@ class Window(QMainWindow):
         epoch = QSpinBox()
         epoch.setMinimum(1)
         epoch.setMaximum(99999)
-        epoch.setValue(40)
+        epoch.setValue(2000)
         self.vbox.addWidget(epoch_lab, 3, 1)
         self.vbox.addWidget(epoch, 4, 1)
 
@@ -534,7 +647,7 @@ class Window(QMainWindow):
         lstm_units = QSpinBox()
         lstm_units.setMinimum(1)
         lstm_units.setMaximum(99999)
-        lstm_units.setValue(30)
+        lstm_units.setValue(20)
         self.vbox.addWidget(lstm_units_lab, 3, 3)
         self.vbox.addWidget(lstm_units, 4, 3)
 
@@ -542,7 +655,7 @@ class Window(QMainWindow):
         batch_size = QSpinBox()
         batch_size.setMinimum(1)
         batch_size.setMaximum(99999)
-        batch_size.setValue(20)
+        batch_size.setValue(32)
         self.vbox.addWidget(batch_size_lab, 3, 2)
         self.vbox.addWidget(batch_size, 4, 2)
 
@@ -550,9 +663,17 @@ class Window(QMainWindow):
         lookback = QSpinBox()
         lookback.setMinimum(1)
         lookback.setMaximum(99999)
-        lookback.setValue(9)
+        lookback.setValue(3)
         self.vbox.addWidget(lookback_lab, 5, 1)
         self.vbox.addWidget(lookback, 6, 1)
+
+        split_percent_lab = QLabel('Training Split')
+        split_percent = QDoubleSpinBox()
+        split_percent.setMinimum(0.40)
+        split_percent.setMaximum(0.95)
+        split_percent.setValue(0.80)
+        self.vbox.addWidget(split_percent_lab, 7, 1)
+        self.vbox.addWidget(split_percent, 8, 1)
 
         buttons = [exit_button,
                    site_name_lab,
@@ -573,7 +694,9 @@ class Window(QMainWindow):
                    batch_size,
                    lookback_lab,
                    lookback,
-                   run_project
+                   run_project,
+                   split_percent_lab,
+                   split_percent
                    ]
         
         #actions
@@ -586,7 +709,8 @@ class Window(QMainWindow):
                                                                     epoch.value(),
                                                                     lstm_units.value(),
                                                                     batch_size.value(),
-                                                                    lookback.value()))
+                                                                    lookback.value(),
+                                                                    split_percent.value()))
 
     def merge_projections_button(self):
         exit_button = QPushButton('Exit')
@@ -600,18 +724,26 @@ class Window(QMainWindow):
         self.vbox.addWidget(site_name_lab, 1, 1)
         self.vbox.addWidget(site_name, 2, 1)
 
-        transect_id_range_lab = QLabel('Number of Transects')
-        transect_id_range = QSpinBox()
-        transect_id_range.setMinimum(0)
-        transect_id_range.setMaximum(99999)
-        transect_id_range.setValue(0)
-        self.vbox.addWidget(transect_id_range_lab, 3, 1)
-        self.vbox.addWidget(transect_id_range, 4, 1)
+        transect_id_start_lab = QLabel('Start Transect ID')
+        transect_id_start = QSpinBox()
+        transect_id_start.setMinimum(0)
+        transect_id_start.setMaximum(99999)
+        transect_id_start.setValue(0)
+        self.vbox.addWidget(transect_id_start_lab, 3, 1)
+        self.vbox.addWidget(transect_id_start, 4, 1)
+
+        transect_id_stop_lab = QLabel('End Transect ID')
+        transect_id_stop = QSpinBox()
+        transect_id_stop.setMinimum(1)
+        transect_id_stop.setMaximum(99999)
+        transect_id_stop.setValue(20)
+        self.vbox.addWidget(transect_id_stop_lab, 5, 1)
+        self.vbox.addWidget(transect_id_stop, 6, 1)
 
         epsg_code_lab = QLabel('EPSG Code')
         epsg_code = QLineEdit()
-        self.vbox.addWidget(epsg_code_lab, 5, 1)
-        self.vbox.addWidget(epsg_code, 6, 1)     
+        self.vbox.addWidget(epsg_code_lab, 7, 1)
+        self.vbox.addWidget(epsg_code, 8, 1)     
 
         switch_dir_lab = QLabel('Switch Transect Direction')
         switch_dir = QCheckBox()
@@ -627,8 +759,10 @@ class Window(QMainWindow):
         buttons = [exit_button,
                    site_name_lab,
                    site_name,
-                   transect_id_range_lab,
-                   transect_id_range,
+                   transect_id_start_lab,
+                   transect_id_start,
+                   transect_id_stop_lab,
+                   transect_id_stop,
                    epsg_code_lab,
                    epsg_code,
                    switch_dir_lab,
@@ -638,7 +772,8 @@ class Window(QMainWindow):
         #actions
         exit_button.clicked.connect(lambda: self.exit_buttons(buttons))
         run_merge_projections.clicked.connect(lambda: self.run_merge_projections_button(site_name.text(),
-                                                                                        transect_id_range.value(),
+                                                                                        transect_id_start.value(),
+                                                                                        transect_id_stop.value(),
                                                                                         int(epsg_code.text()),
                                                                                         switch_dir.isChecked()))
         

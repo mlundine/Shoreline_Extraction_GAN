@@ -7,10 +7,11 @@ def main(transect_folder,
          num2,
          bootstrap=30,
          num_prediction=40,
-         epochs=40,
-         units=30,
-         batch_size=20,
-         lookback=9):
+         epochs=2000,
+         units=80,
+         batch_size=32,
+         lookback=3,
+         split_percent=0.80):
     """
     Projects timeseries of cross-shore position with a LSTM
     Will save a timeseries figure and a csv for each transect
@@ -22,26 +23,24 @@ def main(transect_folder,
     num2: index for ending transect, plus one (int)
     """
     root = os.getcwd()
-    python_file = os.path.join(root, 'lstm_utils',r'lstm_projection_single_transect.py')
-    
-    for i in range(num1,num2):
-        print('transect:' +str(i))
-        site = sitename+'_'+str(i)
-        full = os.path.join(transect_folder, site+'.csv')
-        cmd1 = r'conda deactivate & conda activate shoreline_prediction & '
-        cmd2 = r'python ' + python_file
-        cmd3 = ' --csv_path ' + full
-        cmd4 = ' --site ' + site
-        cmd5 = ' --folder ' + projected_folder
-        cmd6 = ' --bootstrap ' + str(bootstrap)
-        cmd7 = ' --num_prediction ' + str(num_prediction)
-        cmd8 = ' --epochs ' + str(epochs)
-        cmd9 = ' --units ' + str(units)
-        cmd10 = ' --batch_size ' + str(batch_size)
-        cmd11 = ' --lookback ' + str(lookback)
-        fullcmd = cmd1+cmd2+cmd3+cmd4+cmd5+cmd6+cmd7+cmd8+cmd9+cmd10+cmd11
-        os.system(fullcmd)
-        gc.collect()
+    python_file = os.path.join(root, 'lstm_utils',r'lstm_parallel.py')
+    cmd1 = r'conda deactivate & conda activate shoreline_prediction & '
+    cmd2 = r'python ' + python_file
+    cmd3 = ' --transect_folder ' + transect_folder
+    cmd4 = ' --output_folder ' + projected_folder
+    cmd5 = ' --site ' + sitename
+    cmd6 = ' --start_idx ' + str(num1)
+    cmd7 = ' --end_idx ' + str(num2)
+    cmd8 = ' --bootstrap ' + str(bootstrap)
+    cmd9 = ' --num_prediction ' + str(num_prediction)
+    cmd10 = ' --epochs ' + str(epochs)
+    cmd11 = ' --units ' + str(units)
+    cmd12 = ' --batch_size ' + str(batch_size)
+    cmd13 = ' --lookback ' + str(lookback)
+    cmd14 = ' --split_percent ' + str(split_percent)
+    fullcmd = cmd1+cmd2+cmd3+cmd4+cmd5+cmd6+cmd7+cmd8+cmd9+cmd10+cmd11+cmd12+cmd13+cmd14
+    os.system(fullcmd)
+    gc.collect()
 
 
 
