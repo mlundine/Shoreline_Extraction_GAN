@@ -4,15 +4,15 @@
 
 ![Mid_Atlantic_Trends](images/Mid_Atlantic_Trends.JPG)
 
-![sandyhook](images/sandyhook_nj.png)
+![sandyhook](images/sandyhook_nj.PNG)
 
-![brigantine](images/BrigantineNJ.png)
+![brigantine](images/BrigantineNJ.PNG)
 
-![wallopsfp](images/WallopsFishingPoint.png)
+![wallopsfp](images/WallopsFishingPoint.PNG)
 
-![hogisland](images/HogIsland.png)
+![hogisland](images/HogIsland.PNG)
 
-![AssateagueN](images/AssateagueN.png)
+![AssateagueN](images/AssateagueN.PNG)
 
 A work in progess in its beginning stages...more code and detail to come.
 
