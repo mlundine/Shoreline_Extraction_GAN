@@ -15,6 +15,22 @@ This repo will (eventually) contain the following:
 8. Code to train and run LSTM models for shoreline projection.
 9. Possible integration of NOAA wave buoy data and/or WaveWatch3 data (pending).
 
+# Extraction Model Flow Diagram
+
+Input: 256x256 RGB coastal satellite imagery is the input data.
+
+1. These images get segmented into land and water binary images by the GAN.
+2. Marching squares contouring algorithm is then used to delineated the land/water boundary.
+3. The vector outputs from marching squares are then smoothed out using Chaikin's corner cutting algorithm.
+4. Filters:
+	* Recursive 3-sigma vertex filter: discard all shorelines that have mean vertices +/- 3*sigma vertices until no more shorelines can be discarded.
+	* Reference shoreline filter (and buffer radius), all features that lie outside of the buffer radius of the reference shoreline are discarded.
+	* Reference region filter, all shorelines that are not contained within the reference region are discarded.
+
+Output: Timestamped vector shorelines
+
+![model_flow](/images/Extraction_steps.png)
+
 # Examples (all data/results are preliminary at this point)
 
 ![cape_ex](/images/capehenlopen_ex.png)
