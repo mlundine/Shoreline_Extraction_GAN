@@ -1,5 +1,7 @@
 # Shoreline_Extraction_GAN
 
+![cool_examples](images/cape_henlopen_shorelines.png)
+
 A work in progess in its beginning stages...more code and detail to come.
 
 Generating binary land vs. water masks from coastal RGB imagery using [pix2pix](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) and [cycle-GAN](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix).
