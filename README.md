@@ -168,28 +168,40 @@ The processed directory will have four subdirectories: kml_merged, shapefile_mer
 kml_merged/ will contain all extracted shorelines in two separate kmls for each side of the split images.
 
 
-shapefile_merged/ will contain six shapefiles (three for each side):
+shapefile_merged/ will contain the following shapefiles:
 
-* The first two contain all of the extracted shorelines.
-* The next two (with suffix simplify20) contain the extracted shorelines simplfied to only having vertices every 20 m.
-* The next two (with suffix simplify20vtx) contain the simplified shorelines filtered by number of vertices with a recursive three-sigma filter.
-* The last two (with suffix simplify20vtxsmooth) contain the simplified and filtered shorelines smoothed out with Chaikens algorithm.
+If you provide both a reference shoreline and a reference region:
 
+* sitenameone.shp and sitenametwo.shp, these are the unfiltered and smooth extracted shorelines
+* sitenameone_ref_shoreline_filter.shp and sitenametwo_ref_shoreline_filter.shp, these are the shorelines filtered by the reference shoreline
+* sitenameone_ref_region_filter.shp and sitenametwo_ref_region_filter.shp, these are the shorelines filtered by the reference region
+* sitenameone_ref_region_filter_vtx.shp and sitenametwo_ref_region_filter_vtx.shp, these are the shorelines after the 3-sigma vertex filter
 
-The last two shapefiles should have the best results. The vertex filter is used to filter out erroneous shorelines that were extracted from noisy imagery.
-The simplifying and smoothing helps remove sharp edges from the extracted shorelines.
+If you only provide a reference region, you will have:
 
+* sitenameone.shp and sitenametwo.shp, these are the unfiltered and smooth extracted shorelines
+* sitenameone_ref_region_filter.shp and sitenametwo_ref_region_filter.shp, these are the shorelines filtered by the reference region
+* sitenameone_ref_region_filter_vtx.shp and sitenametwo_ref_region_filter_vtx.shp, these are the shorelines after the 3-sigma vertex filter
+
+If you only provide a reference shoreline, you will have: 
+
+* sitenameone.shp and sitenametwo.shp, these are the unfiltered and smooth extracted shorelines
+* sitenameone_ref_shoreline_filter.shp and sitenametwo_ref_shoreline_filter.shp, these are the shorelines filtered by the reference shoreline
+* sitenameone_ref_shoreline_filter_vtx.shp and sitenametwo_ref_shoreline_filter_vtx.shp, these are the shorelines after the 3-sigma vertex filter
+
+If you don't provide a reference shoreline or a reference region:
+
+* sitenameone.shp and sitenametwo.shp, these are the unfiltered and smooth extracted shorelines
+* sitenameone_vtx.shp and sitenametwo__vtx.shp, these are the shorelines after the 3-sigma vertex filter
+
+The shapefiles with the vtx filter will provide the best results. Using a reference shoreline or a reference region will greatly limit any additional editing in GIS software.
 
 shapefiles/ will contain individual shoreline shapefiles for each image.
-
 
 shoreline_images/ will contain RGB images with the extracted shorelines.
 
 
-The best results come from editing the simplify20vtxsmooth shapefiles in GIS software.
-I usually need to delete a few erroneous shorelines and clip out the ends. 
-Then I merge together the two shapefiles.
-
+![filters](/images/filtering.png)
 # Make Transects
 
 Hit Make Transects.
