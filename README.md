@@ -23,7 +23,7 @@ Input: 256x256 RGB coastal satellite imagery is the input data.
 
 1. These images get segmented into land and water binary images by the GAN (which consists of a 256x256 U-Net for the generator and a Patch-GAN for the discriminator, pix2pix-style).
 2. Marching squares contouring algorithm is then used to delineated the land/water boundary.
-3. The vector outputs from marching squares are then smoothed out using Chaikin's corner cutting algorithm.
+3. The vector outputs from marching squares are then smoothed out using Chaikin's corner cutting algorithm (five refinements).
 4. Filters:
 	* Recursive 3-sigma vertex filter: discard all shorelines that have mean vertices +/- 3*sigma vertices until no more shorelines can be discarded.
 	* Reference shoreline filter (and buffer radius), all features that lie outside of the buffer radius of the reference shoreline are discarded.
@@ -41,6 +41,25 @@ Training data outlined in black in each image.
 
 ![italy_domain](/images/Italy_Model_Domain.JPG)
 
+Augmentations included vertical flip, horizontal flip, 90 degree CW rotation, 90 degree CCW rotation, and combined vertical and horizontal flip.
+
+Total set of labeled images was 128,012. Split was 80% training, 10% validation, and 10% testing.
+
+# GAN Training Details
+
+* Generator: 256x256 U-Net
+* Discriminator: PatchGAN
+* GPU: NVIDIA GeForce GTX 1650 (4GB memory)
+* Learning Rate: 0.000002 for first 10 epochs, linearly decay to zero final five epochs.
+* Optimizer: Adam
+* Loss functions 
+	* Generator: 
+		* a binary cross entropy loss of the generated images and an array of ones
+		* a L1 loss between the generated and target image
+	* Discriminator’s training loss is measured with two separate loss functions: 
+		* the “real” loss which is a binary cross entropy loss between the target images and an array of ones
+		* the “fake” loss which is a binary cross entropy loss between the generated images and an array of zeros
+
 # GAN Dice Scores
 
 Quantifying the segmentation accuracy over training epochs. Perfect segmentation would be a Dice Score of 1.0.
@@ -53,7 +72,7 @@ Final model run on the test dataset.
 
 # Shoreline Extraction Deviation from Manual Delineation
 
-How does the model extracted shorelines compare (in terms of meters) to manually delineated shorelines?
+How do the model extracted shorelines compare (in terms of meters) to manually delineated shorelines?
 
 ![geo_assessment](/images/epochs_vs_median_shoreline_deviation.png)
 
