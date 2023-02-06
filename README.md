@@ -150,64 +150,47 @@ Hit Shoreline Extraction.
 
 ![shorelineExtraction](/images/run_and_process_screen.JPG)
 
-The current trained models are under Releases. Make a folder in .../Shoreline_Extraction_GAN/pix2pix_modules/checkpoints called shoreline_gan_nov.
-Place both latest_net_G.pth and latest_net_D.pth in the shoreline_gan_nov folder.
+* The current trained models are under Releases. Make a folder in .../Shoreline_Extraction_GAN/pix2pix_modules/checkpoints called shoreline_gan_nov. Place both latest_net_G.pth and latest_net_D.pth in the shoreline_gan_nov folder.
 
-Type shoreline_gan_nov in the Model Name text box.
+* Type shoreline_gan_nov in the Model Name text box.
 
-Next type in your site name.
+* Next type in your site name.
 
-Next, type in latest under the Epoch text box.
+* Next, type in latest under the Epoch text box.
 
-Specify a clip length. This is done to account for edge effects where the extracted shoreline often trails off.
+* Specify a clip length. This is done to account for edge effects where the extracted shoreline often trails off.
 
-Optionally, you can add a reference shoreline which is used to filter out erroneous results. Specify a buffer radius around the reference shoreline for this filter.
+* Optionally, you can add a reference shoreline which is used to filter out erroneous results. Specify a buffer radius around the reference shoreline for this filter.
 
-Also, optionally, you can add a reference region to filter out erroneous results. This will filter out all shorelines not completely contained in the region you provide.
+* Also, optionally, you can add a reference region to filter out erroneous results. This will filter out all shorelines not completely contained in the region you provide.
 
-Next, hit Run and Process. First, point it to data/sitename/jpg_files/pix2pix_ready.
-Then point it to the metadata csv in data/sitename.
+* Next, hit Run and Process. First, point it to data/sitename/jpg_files/pix2pix_ready. Then point it to the metadata csv in data/sitename.
 
-It will make two new directories: model_outputs/gan/sitename and model_outputs/processed/sitename.
-The gan directory will have the GAN generated images.
-The processed directory will have four subdirectories: kml_merged, shapefile_merged, shapefiles, and shoreline_images.
-
-
-kml_merged/ will contain all extracted shorelines in two separate kmls for each side of the split images.
-
-
-shapefile_merged/ will contain the following shapefiles:
-
-If you provide both a reference shoreline and a reference region:
-
-* sitenameone.shp and sitenametwo.shp, these are the unfiltered and smooth extracted shorelines
-* sitenameone_ref_shoreline_filter.shp and sitenametwo_ref_shoreline_filter.shp, these are the shorelines filtered by the reference shoreline
-* sitenameone_ref_region_filter.shp and sitenametwo_ref_region_filter.shp, these are the shorelines filtered by the reference region
-* sitenameone_ref_region_filter_vtx.shp and sitenametwo_ref_region_filter_vtx.shp, these are the shorelines after the 3-sigma vertex filter
-
-If you only provide a reference region, you will have:
-
-* sitenameone.shp and sitenametwo.shp, these are the unfiltered and smooth extracted shorelines
-* sitenameone_ref_region_filter.shp and sitenametwo_ref_region_filter.shp, these are the shorelines filtered by the reference region
-* sitenameone_ref_region_filter_vtx.shp and sitenametwo_ref_region_filter_vtx.shp, these are the shorelines after the 3-sigma vertex filter
-
-If you only provide a reference shoreline, you will have: 
-
-* sitenameone.shp and sitenametwo.shp, these are the unfiltered and smooth extracted shorelines
-* sitenameone_ref_shoreline_filter.shp and sitenametwo_ref_shoreline_filter.shp, these are the shorelines filtered by the reference shoreline
-* sitenameone_ref_shoreline_filter_vtx.shp and sitenametwo_ref_shoreline_filter_vtx.shp, these are the shorelines after the 3-sigma vertex filter
-
-If you don't provide a reference shoreline or a reference region:
-
-* sitenameone.shp and sitenametwo.shp, these are the unfiltered and smooth extracted shorelines
-* sitenameone_vtx.shp and sitenametwo__vtx.shp, these are the shorelines after the 3-sigma vertex filter
-
-The shapefiles with the vtx filter will provide the best results. Using a reference shoreline or a reference region will greatly limit any additional editing in GIS software.
-
-shapefiles/ will contain individual shoreline shapefiles for each image.
-
-shoreline_images/ will contain RGB images with the extracted shorelines.
-
+* It will make two new directories: model_outputs/gan/sitename and model_outputs/processed/sitename.
+	* The gan directory will have the GAN generated images.
+	* The processed directory will have four subdirectories: kml_merged, shapefile_merged, shapefiles, and shoreline_images.
+		* kml_merged/ will contain all extracted shorelines in two separate kmls for each side of the split images.
+		* shoreline_images/ will contain RGB images with the extracted shorelines.
+		* shapefiles/ will contain individual shoreline shapefiles for each image.
+		* shapefile_merged/ will contain the following shapefiles:
+			* If you provide both a reference shoreline and a reference region:
+				* sitenameone.shp and sitenametwo.shp, these are the unfiltered and smooth extracted shorelines
+				* sitenameone_ref_shoreline_filter.shp and sitenametwo_ref_shoreline_filter.shp, these are the shorelines filtered by the reference shoreline
+				* sitenameone_ref_region_filter.shp and sitenametwo_ref_region_filter.shp, these are the shorelines filtered by the reference region
+				* sitenameone_ref_region_filter_vtx.shp and sitenametwo_ref_region_filter_vtx.shp, these are the shorelines after the 3-sigma vertex filter
+			* If you only provide a reference region, you will have:
+				* sitenameone.shp and sitenametwo.shp, these are the unfiltered and smooth extracted shorelines
+				* sitenameone_ref_region_filter.shp and sitenametwo_ref_region_filter.shp, these are the shorelines filtered by the reference region
+				* sitenameone_ref_region_filter_vtx.shp and sitenametwo_ref_region_filter_vtx.shp, these are the shorelines after the 3-sigma vertex filter
+			* If you only provide a reference shoreline, you will have: 
+				* sitenameone.shp and sitenametwo.shp, these are the unfiltered and smooth extracted shorelines
+				* sitenameone_ref_shoreline_filter.shp and sitenametwo_ref_shoreline_filter.shp, these are the shorelines filtered by the reference shoreline
+				* sitenameone_ref_shoreline_filter_vtx.shp and sitenametwo_ref_shoreline_filter_vtx.shp, these are the shorelines after the 3-sigma vertex filter
+			* If you don't provide a reference shoreline or a reference region:
+				* sitenameone.shp and sitenametwo.shp, these are the unfiltered and smooth extracted shorelines
+				* sitenameone_vtx.shp and sitenametwo__vtx.shp, these are the shorelines after the 3-sigma vertex filter.
+		
+* The shapefiles with the vtx filter will provide the best results. Using a reference shoreline or a reference region will greatly limit any additional editing in GIS software.
 
 ![filters](/images/filtering.png)
 # Make Transects
