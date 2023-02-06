@@ -91,7 +91,7 @@ Next, run the GUI Python file. Make sure you are sitting in the .../Shoreline_Ex
 
     python shoreline_gan_gui.py
 
-The GUI should look like this, with six separate buttons for various tasks related to shoreline extraction.
+The GUI should look like this, with eight separate buttons for various tasks related to shoreline extraction.
 
 ![home_screen](/images/home_screen.JPG)
 
