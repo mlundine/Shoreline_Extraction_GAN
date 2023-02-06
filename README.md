@@ -19,7 +19,7 @@ This repo will (eventually) contain the following:
 
 Input: 256x256 RGB coastal satellite imagery is the input data.
 
-1. These images get segmented into land and water binary images by the GAN.
+1. These images get segmented into land and water binary images by the GAN (which consists of a 256x256 U-Net for the generator and a Patch-GAN for the discriminator, pix2pix-style).
 2. Marching squares contouring algorithm is then used to delineated the land/water boundary.
 3. The vector outputs from marching squares are then smoothed out using Chaikin's corner cutting algorithm.
 4. Filters:
@@ -31,44 +31,6 @@ Output: Timestamped vector shorelines
 
 ![model_flow](/images/Extraction_steps.png)
 
-# Examples (all data/results are preliminary at this point)
-
-![cape_ex](/images/capehenlopen_ex.png)
-
-![iri_ex](/images/iri_example.png)
-
-![more_examples](/images/input_output_shoreline.png)
-
-# Cape Henlopen Shorelines
-
-![cape_map](/images/cape_henlopen_shorelines.png)
-
-# Cape Henlopen Cross-Shore Position Timeseries
-
-![cape_timeseries](/images/Delmarva_140.png)
-
-# Cape Henlopen Cross-Shore Running Means and Linear Trend (meters of change per year)
-
-![cape_timseries_roll_proj](/images/Delmarva_140roll_proj.png)
-
-# Cape Henlopen Cross-Shore Power Spectrum
-
-![cape_power_spectrum](/images/CapeHenlopen_106_dft.png)
-
-# Cape Henlopen Cross-Shore Timeseries with NAO Index
-
-![cape_nao](/images/CapeHenlopen_106_nao.png)
-
-![cape_nao_modern](/images/CapeHenlopen_106_nao_2015to2022.png)
-
-# Cape Henlopen Cross-Shore Position with LSTM Projection
-
-![cape_lstm](/images/Delmarva_140_lstm_proj.png)
-
-# Cape Henlopen Yearly Trends
-
-![cape_trends](/images/trends_cape.JPG)
-
 # Current Shoreline Extraction Training Data Domain
 
 Training data outlined in black in each image. 
@@ -76,6 +38,28 @@ Training data outlined in black in each image.
 ![usa_domain](/images/US_Model_Domain.JPG)
 
 ![italy_domain](/images/Italy_Model_Domain.JPG)
+
+# GAN Dice Scores
+
+Quantifying the segmentation accuracy over training epochs. Perfect segmentation would be a Dice Score of 1.0.
+
+![dice](/images/dice_scores_train_val.png)
+
+Final model run on the test dataset.
+
+![dice_test](/images/testing_epoch_15.png)
+
+# Shoreline Extraction Deviation from Manual Delineation
+
+How does the model extracted shorelines compare (in terms of meters) to manually delineated shorelines?
+
+![geo_assessment](/images/epochs_vs_median_shoreline_deviation.png)
+
+Final model run on the test dataset.
+![geo_assessment_test](/images/test_15_med_deviation_hist.png)
+
+Median deviation is around 16 m. Likely is lower for Sentinel-2 imagery (10-m resolution) and higher for Landsat 5, 7, and 8 (30-m resolution).
+Model performs worse on noisy/cloudy imagery.
 
 # Anaconda Environment Setup
 
