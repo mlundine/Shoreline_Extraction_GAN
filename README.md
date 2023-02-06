@@ -151,6 +151,12 @@ Next type in your site name.
 
 Next, type in latest under the Epoch text box.
 
+Specify a clip length. This is done to account for edge effects where the extracted shoreline often trails off.
+
+Optionally, you can add a reference shoreline which is used to filter out erroneous results. Specify a buffer radius around the reference shoreline for this filter.
+
+Also, optionally, you can add a reference region to filter out erroneous results. This will filter out all shorelines not completely contained in the region you provide.
+
 Next, hit Run and Process. First, point it to data/sitename/jpg_files/pix2pix_ready.
 Then point it to the metadata csv in data/sitename.
 
@@ -250,6 +256,7 @@ You will need to input the following:
 * the look-back value for the LSTM
 * the number of predictions, 
 * the number of times to repeat training to get a confidence interval for the projections
+* the training data split fraction 
 
 The default values have so far been promising, but will depend upon the different datasets used. 
 
