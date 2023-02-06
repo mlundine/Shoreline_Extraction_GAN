@@ -150,8 +150,10 @@ Hit Shoreline Extraction.
 
 ![shorelineExtraction](/images/run_and_process_screen.JPG)
 
-The current trained model is called shoreline_gan_july2. It should live under pix2pix_modules/checkpoints/shoreline_gan_july2.
-Type this in the Model Name text box.
+The current trained models are under Releases. Make a folder in .../Shoreline_Extraction_GAN/pix2pix_modules/checkpoints called shoreline_gan_nov.
+Place both latest_net_G.pth and latest_net_D.pth in the shoreline_gan_nov folder.
+
+Type shoreline_gan_nov in the Model Name text box.
 
 Next type in your site name.
 
@@ -214,17 +216,17 @@ Hit Make Transects.
 
 ![transects](/images/make_transects_screen.JPG)
 
-You need a shapefile containing a reference shoreline to do this. 
-Look in shoreline_images/ for a good example, and then find the corresponding shapefile in shapefiles/
-Copy this file and put it in its own folder.
+* You need a shapefile containing a reference shoreline to do this. 
+  Look in shoreline_images/ for a good example, and then find the corresponding shapefile in shapefiles/
+  Copy this file and put it in its own folder.
 
-Select an alongshore spacing between transects, and a cross-shore length. 
-The cross-shore length should be long enough to intersect all extracted shorelines at each transect.
+* Select an alongshore spacing between transects, and a cross-shore length. 
+  The cross-shore length should be long enough to intersect all extracted shorelines at each transect.
 
-Hit Select Reference Shoreline Shapefile, and point it to your reference shoreline. 
-It will save the transects output to the same directory of the reference shoreline.
+* Hit Select Reference Shoreline Shapefile, and point it to your reference shoreline. 
+  It will save the transects output to the same directory of the reference shoreline.
 
-Check that the transects look correct in GIS software.
+* Check that the transects look correct in GIS software.
 
 # Make Timeseries
 
@@ -232,27 +234,24 @@ Hit Make Timeseries.
 
 ![timeseries](/images/make_timeseries_screen.JPG)
 
-Type in your site name. If your transects were oriented in the opposite direction of the ocean/sea/lake, check switch transect direction.
+* Type in your site name. If your transects were oriented in the opposite direction of the ocean/sea/lake, check switch transect direction.
 
-Next, hit Create Timeseries. This will ask for the shapefile containing all of the shorelines.
+* Next, hit Create Timeseries. This will ask for the shapefile containing all of the shorelines.
 
-Next, it will ask for your transect shapefile.
+* Next, it will ask for your transect shapefile.
 
-Next, you need to tell it where to save the timeseries data.
- 
-Best to make a new directory to save this stuff to:
+* Next, you need to tell it where to save the timeseries data. Make a new folder for this.
+	** Raw timeseries data (datetime, northings, eastings, cross-shore distance)
+	** Raw timeseries figure
+	** Raw timeseries with yearly linear trend figure
+	** 3-month, 6-month, and yearly running means with linear trend figure
+	** Power spectrum figure
+	** 3-month running mean with NAO figure
+	** De-trended timeseries figure
+	** Yearly trend data (datetime, predicted cross-shore distance, residual)
 
-* Raw timeseries data (datetime, northings, eastings, cross-shore distance)
-* Raw timeseries figure
-* Raw timeseries with yearly linear trend figure
-* 3-month, 6-month, and yearly running means with linear trend figure
-* Power spectrum figure
-* 3-month running mean with NAO figure
-* De-trended timeseries figure
-* Yearly trend data (datetime, predicted cross-shore distance, residual)
-
-This tool will also make a new transects shapefile with the yearly trend values added as a field.
-This file will be saved in the same directory as the original transect shapefile.
+* This tool will also make a new transects shapefile with the yearly trend values added as a field. 
+* This file will be saved in the same directory as the original transect shapefile.
 
 # Project Timeseries
 
