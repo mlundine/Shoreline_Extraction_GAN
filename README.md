@@ -61,6 +61,10 @@ Final model run on the test dataset.
 Median deviation is around 16 m. Likely is lower for Sentinel-2 imagery (10-m resolution) and higher for Landsat 5, 7, and 8 (30-m resolution).
 Model performs worse on noisy/cloudy imagery.
 
+# Test Dataset Examples
+
+![test_examples](/images/OutputsExamples.png)
+
 # Anaconda Environment Setup
 
 envs/ holds three environment files that list all of the requirements.
