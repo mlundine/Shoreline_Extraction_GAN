@@ -43,6 +43,8 @@ Training data outlined in black in each image.
 
 Augmentations included vertical flip, horizontal flip, 90 degree CW rotation, 90 degree CCW rotation, and combined vertical and horizontal flip.
 
+![augementations](/images/augmentation.png)
+
 Total set of labeled images was 128,012. Split was 80% training, 10% validation, and 10% testing.
 
 # GAN Training Details
