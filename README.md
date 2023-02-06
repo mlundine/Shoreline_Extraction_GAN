@@ -56,7 +56,7 @@ Total set of labeled images was 128,012. Split was 80% training, 10% validation,
 	* Generator: 
 		* a binary cross entropy loss of the generated images and an array of ones
 		* a L1 loss between the generated and target image
-	* Discriminator’s training loss is measured with two separate loss functions: 
+	* Discriminator:
 		* the “real” loss which is a binary cross entropy loss between the target images and an array of ones
 		* the “fake” loss which is a binary cross entropy loss between the generated images and an array of zeros
 
@@ -213,6 +213,8 @@ Hit Shoreline Extraction.
 
 ![filters](/images/filtering.png)
 # Make Transects
+
+![transects_ex](/images/generate_transects.png)
 
 Hit Make Transects.
 
