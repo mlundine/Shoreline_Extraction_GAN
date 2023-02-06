@@ -2,7 +2,7 @@
 
 ![cool_examples](images/cape_henlopen_shorelines.png)
 
-<video src='https://drive.google.com/file/d/1argplL-bBPUL95Y6Nb3GpgMXWy0YnJE4/view?usp=sharing' width=300/>
+![video_ex](images/MidAtlantic_video.mp4)
 
 A work in progess in its beginning stages...more code and detail to come.
 
