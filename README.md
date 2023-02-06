@@ -300,7 +300,8 @@ This function will merge the timeseries projections into 2D shorelines and 95% c
 Input the following:
 
 * the site name
-* the number of transects
+* start transect index
+* end transect index
 * the EPSG code for the coordinate system used (whatever EPSG code that corresponds to the study area's WGS84/UTM zone)
 * whether or not the transects are running in the opposite direction of the water and need to be flipped.
 
