@@ -63,7 +63,7 @@ Model performs worse on noisy/cloudy imagery.
 
 # Test Dataset Examples
 
-![test_examples](/images/OutputsExamples.png)
+![test_examples](/images/OutputsExamplesMat.png)
 
 # Anaconda Environment Setup
 
