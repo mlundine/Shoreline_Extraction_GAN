@@ -2,7 +2,17 @@
 
 ![cool_examples](images/cape_henlopen_shorelines.png)
 
-![video_ex](images/MidAtlantic_video.mp4)
+![Mid_Atlantic_Trends](images/Mid_Atlantic_Trends.JPG)
+
+![sandyhook](images/sandyhook_nj.png)
+
+![brigantine](images/BrigantineNJ.png)
+
+![wallopsfp](images/WallopsFishingPoint.png)
+
+![hogisland](images/HogIsland.png)
+
+![AssateagueN](images/AssateagueN.png)
 
 A work in progess in its beginning stages...more code and detail to come.
 
