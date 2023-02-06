@@ -16,20 +16,7 @@
 
 ![AssateagueN](images/AssateagueN.PNG)
 
-A work in progess in its beginning stages...more code and detail to come.
-
-Generating binary land vs. water masks from coastal RGB imagery using [pix2pix](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix) and [cycle-GAN](https://github.com/junyanz/pytorch-CycleGAN-and-pix2pix).
-
-This repo will (eventually) contain the following:
-1. Code to help with setting up the training data for either of these image-to-image translation GANs.
-2. Code to train both models.
-3. Code to run the models.
-4. Code to process the results and extract shorelines into GIS format.
-5. Code to generate cross-shore transects and shoreline change timeseries (along with running means, linear trends, power spectra, NAO index).
-6. Trained models for Delmarva, Jersey Shore, Long Island, and North Tuscany (Italy).
-7. Code to download new imagery to run the model on.
-8. Code to train and run LSTM models for shoreline projection.
-9. Possible integration of NOAA wave buoy data and/or WaveWatch3 data (pending).
+Data-driven satellite shoreline analysis with GANs and LSTMs.
 
 # Extraction Model Flow Diagram
 
