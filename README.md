@@ -241,14 +241,14 @@ Hit Make Timeseries.
 * Next, it will ask for your transect shapefile.
 
 * Next, you need to tell it where to save the timeseries data. Make a new folder for this.
-	** Raw timeseries data (datetime, northings, eastings, cross-shore distance)
-	** Raw timeseries figure
-	** Raw timeseries with yearly linear trend figure
-	** 3-month, 6-month, and yearly running means with linear trend figure
-	** Power spectrum figure
-	** 3-month running mean with NAO figure
-	** De-trended timeseries figure
-	** Yearly trend data (datetime, predicted cross-shore distance, residual)
+	* Raw timeseries data (datetime, northings, eastings, cross-shore distance)
+	* Raw timeseries figure
+	* Raw timeseries with yearly linear trend figure
+	* 3-month, 6-month, and yearly running means with linear trend figure
+	* Power spectrum figure
+	* 3-month running mean with NAO figure
+	* De-trended timeseries figure
+	* Yearly trend data (datetime, predicted cross-shore distance, residual)
 
 * This tool will also make a new transects shapefile with the yearly trend values added as a field. 
 * This file will be saved in the same directory as the original transect shapefile.
@@ -261,34 +261,28 @@ Hit Project Timeseries
 
 Using LSTMs to project cross-shore positions into the future. 
 
-To use this tool, you should have a folder with all of the cross-shore timeseries for your study areas (defined by a transect number).
+* To use this tool, you should have a folder with all of the cross-shore timeseries for your study areas (defined by a transect number).
 
-You will need to input the following:
+* You will need to input the following:
+	* a site name
+	* a starting and ending index (transect number to start and stop at)
+	* the number of epochs to train each LSTM for
+	* the batch size for training the LSTM
+	* the number of layers in the LSTM
+	* the look-back value for the LSTM
+	* the number of predictions, 
+	* the number of times to repeat training to get a confidence interval for the projections
+	* the training data split fraction 
 
-* a site name
-* a starting and ending index (transect number to start and stop at)
-* the number of epochs to train each LSTM for
-* the batch size for training the LSTM
-* the number of layers in the LSTM
-* the look-back value for the LSTM
-* the number of predictions, 
-* the number of times to repeat training to get a confidence interval for the projections
-* the training data split fraction 
+* Values will vary depending upon input datasets. Fine-tuning of various values (epochs, batch size, layers, look-back values, predictions, repeats) would be beneficial to get the best results. 
 
-The default values have so far been promising, but will depend upon the different datasets used. 
+* Currently, the LSTM is trained to project shorelines at 3-month intervals, so with a number of predicitons equal to 40, it is projecting ten years from the last observed satellite shoreline (4 predictions per year, 40 predictions per ten years).
 
-Fine-tuning of various values (epochs, batch size, layers, look-back values, predictions, repeats) 
-would be beneficial to get the best results. 
+* Upon clicking Run, you will need to feed it the folder with the extracted timeseries, and then make a new folder to save the projections to.
 
-Currently, the LSTM is trained to project shorelines at 3-month intervals, so with a number of 
-predicitons equal to 40, it is projecting ten years from the last observed satellite shoreline (4 predictions per year, 40 predictions per ten years).
-
-Upon clicking Run, you will need to feed it the folder with the extracted timeseries, and then make a new folder to save the projections to.
-
-For each transect it will save to the projected folder:
-
-* CSV containing projected values (datetime, mean projected cross-shore distance, upper 95% confidence bound, lower 95% confidence bound)
-* Timeseries figure with the 3-month moving average and then the projected data
+* For each transect it will save to the projected folder:
+	* CSV containing projected values (datetime, mean projected cross-shore distance, upper 95% confidence bound, lower 95% confidence bound)
+	* Timeseries figure with the 3-month moving average and then the projected data
 
 # Merge Projections
 
@@ -296,22 +290,19 @@ Hit Merge Projections
 
 ![merge_projections](/images/merge_projections_screen.JPG)
 
-This function will merge the timeseries projections into 2D shorelines and 95% confidence polygons for each projected time.
+* This function will merge the timeseries projections into 2D shorelines and 95% confidence polygons for each projected time.
 
-Input the following:
+* Input the following:
+	* the site name
+	* start transect index
+	* end transect index
+	* the EPSG code for the coordinate system used (whatever EPSG code that corresponds to the study area's WGS84/UTM zone)
+	* whether or not the transects are running in the opposite direction of the water and need to be flipped.
 
-* the site name
-* start transect index
-* end transect index
-* the EPSG code for the coordinate system used (whatever EPSG code that corresponds to the study area's WGS84/UTM zone)
-* whether or not the transects are running in the opposite direction of the water and need to be flipped.
+* Upon clicking Run, you will need to feed it the folder holding the extracted timeseries, then the folder holding the projected timeseries, and then the shapefile holding the transects.
 
-Upon clicking Run, you will need to feed it the folder holding the extracted timeseries, 
-then the folder holding the projected timeseries, and then the shapefile holding the transects.
-
-It will save the two shapefiles (projected shorelines and projected confidence intervals) into the projected timeseries folder. 
-It will also add northings and eastings as columns to each
-projected timeseries csv.
+* It will save the two shapefiles (projected shorelines and projected confidence intervals) into the projected timeseries folder. 
+* It will also add northings and eastings as columns to each projected timeseries csv.
 
 
 # Retraining Model
