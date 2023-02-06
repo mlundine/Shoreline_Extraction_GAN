@@ -4,6 +4,8 @@
 
 ![Mid_Atlantic_Trends](images/Mid_Atlantic_Trends.JPG)
 
+![tuscanytrends](/images/TuscanyTrends.PNG)
+
 ![sandyhook](images/sandyhook_nj.PNG)
 
 ![brigantine](images/BrigantineNJ.PNG)
