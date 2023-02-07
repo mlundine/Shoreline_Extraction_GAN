@@ -24,10 +24,10 @@ Northern Tuscany, Italy:
 
 Sandy Hook, New Jersey, USA
 
-![sandyhook](images/sandyhook_nj.PNG)
-
 * Another active sandy spit on the end of an ocean-fronting barrier island
 * At the mouth of New York Bay
+
+![sandyhook](images/sandyhook_nj.PNG)
 
 Brigantine, New Jersey, USA
 
