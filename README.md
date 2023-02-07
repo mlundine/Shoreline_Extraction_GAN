@@ -300,7 +300,7 @@ This tool allows for the construction of shapefiles that help with visualization
 Each transect will be re-scaled and the direction changed to correspond with the value of the computed linear trend.
 
 Fit a linear model to this data using ordinary least squares (OLS)
-* y_i = b + mx + e 
+* y_i = b + mx_i + e 
 * b is the y-intercept (OLS estimated parameter)
 * m is the slope of the line (in m/year) (OLS estimated parameter)
 * x_i is the independent variable (years)
@@ -336,6 +336,7 @@ To use this tool, hit "Get Linear Trend Shapefile"
 	* It will first ask for the transects shapefile you used to generate the timeseries data
 	* Next it will ask for the folder where the timeseries data was saved to
 	* It will save the new shapefile in the same folder as the transects shapefile you pointed it to, with the min/max years added to the name of the new file
+	* You will need to edit the symbology of the shapefile to help with visualization (ex: making a graduated color scale for the linear trend values)
 
 
 # Project Timeseries
