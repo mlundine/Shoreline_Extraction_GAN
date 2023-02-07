@@ -1,5 +1,7 @@
 # Shoreline_Extraction_GAN
 
+# Some Cool Examples
+
 ![cool_examples](images/cape_henlopen_shorelines.png)
 
 ![Mid_Atlantic_Trends](images/Mid_Atlantic_Trends.JPG)
@@ -16,7 +18,16 @@
 
 ![AssateagueN](images/AssateagueN.PNG)
 
-Data-driven satellite shoreline analysis with GANs and LSTMs.
+Data-driven satellite shoreline analysis with GANs and LSTMs. 
+
+How can we use satellite imagery to quantify historical patterns in sandy beach dynamics?
+
+* Need a model that can delineate the land/water boundary in satellite imagery.
+* Need some tools that can automate cross-shore position timeseries generation from shoreline data.
+
+How can we use data to predict future sandy beach dynamics?
+
+* Experiment with long short-term memory networks, models that aim to predict the future value of a timeseries based on previous values.
 
 # Extraction Model Flow Diagram
 
@@ -266,7 +277,17 @@ Hit Project Timeseries
 
 ![project_timeseries](/images/project_timeseries_screen.JPG)
 
-Using LSTMs to project cross-shore positions into the future. 
+Using LSTMs to project cross-shore positions into the future for an entire section of the coast.
+* LSTM Architecture
+	* Training data: N cross-shore position timeseries
+	* Two stacked, bidirectional LSTM layers.
+	* Loss function: mean absolute error, keeps the units in meters
+	* Early stopping for training (if validation loss does not improve for 100 epochs, halt training)
+	* Repeat training a set number of times to get a distribution and confidence interval of model outputs
+	* Dimensions of inputs and outputs for the model
+		* Dependent upon the look-back value, L and the number of transects, N
+		* Input: (L, N), or the previous L values for each transect
+		* Ouput: (1, N), or the next value for each transect
 
 * To use this tool, you should have a folder with all of the cross-shore timeseries for your study areas (defined by a transect number).
 
@@ -275,7 +296,7 @@ Using LSTMs to project cross-shore positions into the future.
 	* a starting and ending index (transect number to start and stop at)
 	* the number of epochs to train each LSTM for
 	* the batch size for training the LSTM
-	* the number of layers in the LSTM
+	* the number of units in the LSTM
 	* the look-back value for the LSTM
 	* the number of predictions, 
 	* the number of times to repeat training to get a confidence interval for the projections
