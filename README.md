@@ -1,5 +1,7 @@
 # Shoreline_Extraction_GAN
 
+Author: Mark Lundine, PhD Candidate, University of Delaware, mlundine@udel.edu
+
 # Some Cool Examples
 
 Cape Henlopen, Delaware, USA
@@ -83,7 +85,17 @@ Output: Timestamped vector shorelines
 
 # Current Shoreline Extraction Training Data Domain
 
-Training data outlined in black in each image. 
+Training data outlined in black in each image. Annotation pairs consist of an RGB image and a segmented land/water binary image.
+
+Currently, training data encompasses Delmarva, New Jersey Shore, and Long Island (all USA), as well as a section of coast in northern Tuscany, Italy.
+
+I aimed to cover most of the mid-Atlantic and then added the Tuscany section during my time working at the University of Pisa in Pisa, Italy.
+
+Viriginia Beach and the Outer Banks of North Carolina will be added to the model training data domain later this spring.
+
+Great Lakes data will be added hopefully this summer.
+
+If you have any training data I could use (and possibly in-situ comparison data), feel free to reach out (mlundine@udel.edu).
 
 ![usa_domain](/images/US_Model_Domain.JPG)
 
