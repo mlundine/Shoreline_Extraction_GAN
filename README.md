@@ -309,8 +309,13 @@ Using LSTMs to project cross-shore positions into the future for an entire secti
 * Upon clicking Run, you will need to feed it the folder with the extracted timeseries, and then make a new folder to save the projections to.
 
 * For each transect it will save to the projected folder:
+	* CSV containing predicted values (datetime, mean projected cross-shore distance, upper 95% confidence bound, lower 95% confidence bound)
+	* Timeseries figure with the predicted and ground-truth values
 	* CSV containing projected values (datetime, mean projected cross-shore distance, upper 95% confidence bound, lower 95% confidence bound)
-	* Timeseries figure with the 3-month moving average and then the projected data
+	* Timeseries figure with the projected and ground-truth values
+
+![predictioncape](images/CapePredict.png)
+![projectioncape](images/CapeProject.png)
 
 # Merge Projections
 
@@ -332,6 +337,10 @@ Hit Merge Projections
 * It will save the two shapefiles (projected shorelines and projected confidence intervals) into the projected timeseries folder. 
 * It will also add northings and eastings as columns to each projected timeseries csv.
 
+* Will not work if a shoreline has multiple solutions along one of the transects at a single time. 
+Consequently, areas with extremely complex 2D longshore morphologies are not suitable for this type of modeling approach.
+
+![projected_cape](images/projected_cape.png)
 
 # Retraining Model
 
