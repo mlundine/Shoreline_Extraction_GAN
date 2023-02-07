@@ -173,6 +173,7 @@ You will need the corner coordinates to download imagery:
 Then select which satellites you would like to pull imagery from (L5, L7, L8, and/or S2).
 
 Once everything is ready, hit Start Download. This will make a new folder data/sitename where images get saved.
+The metadata for all of the images are saved to a csv in this folder.
 
 Optionally, you can choose a shapefile with already constructed study areas. This is useful if you wish to download imagery from many study areas.
 * If you are doing the shapefile download, make sure this option is checked. 
@@ -183,7 +184,7 @@ Optionally, you can choose a shapefile with already constructed study areas. Thi
 * Hit Start Download, and then point it towards the shapefile containing your study areas.
 
 
-The metadata for all of the images are saved to a csv in this folder.
+
 
 # Preprocessing for pix2pix
 
