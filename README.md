@@ -293,6 +293,51 @@ Hit Make Timeseries.
 * This tool will also make a new transects shapefile with the yearly trend values added as a field. 
 * This file will be saved in the same directory as the original transect shapefile.
 
+
+# Making Linear Trend Shapefile
+
+This tool allows for the construction of shapefiles that help with visualization of linear trends computed on each transect's cross-shore position timeseries.
+Each transect will be re-scaled and the direction changed to correspond with the value of the computed linear trend.
+
+Fit a linear model to this data using ordinary least squares (OLS)
+* y_i = b + mx + e 
+* b is the y-intercept (OLS estimated parameter)
+* m is the slope of the line (in m/year) (OLS estimated parameter)
+* x_i is the independent variable (years)
+* y_i is the dependent variable (cross-shore distance)
+* e is the model error (normally distributed, mean of zero)
+* m gives us an estimate for yearly shoreline change, under the assumption that the shorelines are eroding or accreting at a constant linear rate
+
+Making a map of shoreline change vectors
+* Shoreline linear trend for the ith transect, s_i (m/year)
+* Assume s_i is constant over time: ds/dt = 0
+* Length of line on map, L_i (m)
+* Pick a constant value, call it A, (units of years) to multiply all the slopes by
+* L_i = A*s_i
+	* y*m/y = m
+* So on the map, each line in this case is projecting the estimated slope A years into the future
+	* A = 100 years
+		* 100m length means a projection of 100m of growth/retreat in 100 years
+		* Direction towards land indicates retreat
+		* Direction towards sea indicates growth
+
+![trends_visual](images/trends_visual.png)
+
+To use this tool, hit "Get Linear Trend Shapefile"
+
+![get_linear_trend](images/get_linear_trends.PNG)
+
+* This tool should be used after timeseries data has been generated
+* You will need to enter the site name in the site name text box, followed by an underscore (ex: Delmarva_)
+* Set a minimum and maximum year for the data
+	* Only cross-shore positions within these years will be used for computing linear trends
+* Type in the EPSG code for the transects shapefile
+* Hit Make Linear Trends Shapefile
+	* It will first ask for the transects shapefile you used to generate the timeseries data
+	* Next it will ask for the folder where the timeseries data was saved to
+	* It will save the new shapefile in the same folder as the transects shapefile you pointed it to, with the min/max years added to the name of the new file
+
+
 # Project Timeseries
 
 Hit Project Timeseries

@@ -21,6 +21,7 @@ from utils import image_processing_utils
 from utils import gan_training_utils
 from utils import gan_inference_utils
 from utils import shoreline_timeseries_utils
+from utils import getting_linear_trends
 from lstm_utils import lstm_2D_projection as project_shore
 from lstm_utils import batch_lstm_proj as project_ts_batch
 
@@ -298,7 +299,82 @@ class Window(QMainWindow):
                                                                          output_folder,
                                                                          int(start_idx),
                                                                          switch_dir=switch_dir.isChecked())
+
+
+    def get_linear_trends_button(self,
+                                 sitename,
+                                 min_year,
+                                 max_year,
+                                 epsg):
+        
+        options = QFileDialog.Options()
+        transects, _ = QFileDialog.getOpenFileName(self,"Select Transects Shapefile", "","ESRI Shapefiles (*.shp)", options=options)
+        if transects:
+            options = QFileDialog.Options()
+            options |= QFileDialog.DontUseNativeDialog
+            transect_folder = str(QFileDialog.getExistingDirectory(self, "Select Folder with Timeseries Data"))
+            if transect_folder:
+                getting_linear_trends.batch_transect_timeseries(sitename,
+                                                                transect_folder,
+                                                                transects,
+                                                                epsg,
+                                                                min_year_filter = min_year,
+                                                                max_year_filter = max_year)
+                
             
+        
+    def get_slopes(self):
+        exit_button = QPushButton('Exit')
+        self.vbox.addWidget(exit_button, 0, 2)
+
+        get_linear_trends = QPushButton('Make Linear Trends Shapefile')
+        self.vbox.addWidget(get_linear_trends, 0, 1)
+
+        sitename = QLineEdit()
+        sitename_lab = QLabel('Site Name')
+        self.vbox.addWidget(sitename_lab, 1, 1)
+        self.vbox.addWidget(sitename, 2, 1)
+
+        min_year_lab = QLabel('Minimum Year')
+        min_year = QSpinBox()
+        min_year.setValue(1984)
+        min_year.setMinimum(1984)
+        min_year.setMaximum(2100)
+        self.vbox.addWidget(min_year_lab, 3, 1)
+        self.vbox.addWidget(min_year, 4, 1)
+
+        max_year_lab = QLabel('Maximum Year')
+        max_year = QSpinBox()
+        max_year.setMinimum(1984)
+        max_year.setMaximum(2100)
+        max_year.setValue(2023)
+        self.vbox.addWidget(max_year_lab, 3, 2)
+        self.vbox.addWidget(max_year, 4, 2)
+
+        epsg_code_lab = QLabel('EPSG Code')
+        epsg_code = QLineEdit()
+        self.vbox.addWidget(epsg_code_lab, 3, 3)
+        self.vbox.addWidget(epsg_code, 4, 3)
+        
+        buttons = [sitename,
+                   sitename_lab,
+                   min_year_lab,
+                   min_year,
+                   max_year_lab,
+                   max_year,
+                   epsg_code_lab,
+                   epsg_code,
+                   get_linear_trends,
+                   exit_button]
+        #actions
+        exit_button.clicked.connect(lambda: self.exit_buttons(buttons))
+        get_linear_trends.clicked.connect(lambda: self.get_linear_trends_button(sitename.text(),
+                                                                                min_year.value(),
+                                                                                max_year.value(),
+                                                                                epsg_code.text()))
+
+
+        
     def timeseries_button(self):
         exit_button = QPushButton('Exit')
         self.vbox.addWidget(exit_button, 0, 2)
@@ -425,18 +501,18 @@ class Window(QMainWindow):
 
         distance_threshold_lab = QLabel('Distance Threshold for Reference Shoreline Filter')
         distance_threshold = QSpinBox()
-        distance_threshold.setValue(250)
         distance_threshold.setMaximum(1500)
         distance_threshold.setMinimum(10)
+        distance_threshold.setValue(250)
         self.vbox.addWidget(distance_threshold_lab, 5,2)
         self.vbox.addWidget(distance_threshold, 6, 2)
         
 
         clip_length_lab = QLabel('End Clip Length')
         clip_length = QSpinBox()
-        clip_length.setValue(150)
         clip_length.setMaximum(750)
         clip_length.setMinimum(30)
+        clip_length.setValue(150)
         self.vbox.addWidget(clip_length_lab,3,2)
         self.vbox.addWidget(clip_length,4,2)
 
@@ -525,9 +601,9 @@ class Window(QMainWindow):
 
         epochs_decay_lab = QLabel('Decay Epochs')
         epochs_decay = QSpinBox()
-        epochs_decay.setValue(5)
         epochs_decay.setMinimum(1)
         epochs_decay.setMaximum(99999)
+        epochs_decay.setValue(5)
         self.vbox.addWidget(epochs_decay_lab, 3, 2)
         self.vbox.addWidget(epochs_decay, 4, 2)
         
@@ -833,14 +909,17 @@ class Window(QMainWindow):
         timeseries = QPushButton('5. Make Timeseries')
         self.vbox.addWidget(timeseries, 4, 0)
 
-        project = QPushButton('6. Project Timeseries')
-        self.vbox.addWidget(project, 5, 0)
+        get_trends = QPushButton('6. Get Linear Trend Shapefile')
+        self.vbox.addWidget(get_trends, 5, 0)
 
-        merge_projections = QPushButton('7. Merge Projections')
-        self.vbox.addWidget(merge_projections, 6, 0)
+        project = QPushButton('7. Project Timeseries')
+        self.vbox.addWidget(project, 6, 0)
 
-        retrain = QPushButton('8. Retraining Extraction Model')
-        self.vbox.addWidget(retrain, 7, 0)
+        merge_projections = QPushButton('8. Merge Projections')
+        self.vbox.addWidget(merge_projections, 7, 0)
+
+        retrain = QPushButton('9. Retraining Extraction Model')
+        self.vbox.addWidget(retrain, 8, 0)
         
         ###Actions
         download_imagery.clicked.connect(lambda: self.download_imagery_window())
@@ -848,9 +927,11 @@ class Window(QMainWindow):
         run_and_process.clicked.connect(lambda: self.run_and_process_button())
         make_transects.clicked.connect(lambda: self.make_transects_button())
         timeseries.clicked.connect(lambda: self.timeseries_button())
+        get_trends.clicked.connect(lambda: self.get_slopes())
         project.clicked.connect(lambda: self.project_button())
         merge_projections.clicked.connect(lambda: self.merge_projections_button())
         retrain.clicked.connect(lambda: self.retrain_button())
+
 
 
 

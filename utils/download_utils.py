@@ -138,7 +138,12 @@ def download_imagery(polygon, dates, sat_list, sitename):
     return metadata_csv, site_folder
 
 
-def download_from_shapefile(shapefile, basename):
+def download_from_shapefile(shapefile,
+                            dates,
+                            sat_list,
+                            sitename,
+                            start_idx,
+                            end_idx):
     def get_points(file):
         df = gpd.read_file(file)
     
@@ -150,17 +155,21 @@ def download_from_shapefile(shapefile, basename):
         return coordinates
     
     polygons = get_points(shapefile)
-    print(polygons)
     j=1
     for poly in polygons:
+        if j<start_idx:
+            j=j+1
+            continue
+        elif j>end_idx:
+            break
         box = [[poly[0][0],poly[0][1]],
                [poly[1][0],poly[1][1]],
                [poly[2][0],poly[2][1]],
                [poly[3][0],poly[3][1]]]
         download_imagery(box,
-                         ['1980-01-01', '2022-07-14'],
-                         ['L7', 'L8', 'L5', 'S2'],
-                         basename+str(j))
+                         dates,
+                         sat_list,
+                         sitename+str(j))
         j=j+1
 
 
