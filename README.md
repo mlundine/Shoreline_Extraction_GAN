@@ -232,6 +232,8 @@ Hit Shoreline Extraction.
 
 Hit Make Transects.
 
+![transect_diagram](images/transect_diagram.PNG)
+
 ![transects](/images/make_transects_screen.JPG)
 
 * You need a shapefile containing a reference shoreline to do this. 
@@ -249,6 +251,8 @@ Hit Make Transects.
 # Make Timeseries
 
 Hit Make Timeseries.
+
+![timeseries_diagram](images/generating_timeseries.png)
 
 ![timeseries](/images/make_timeseries_screen.JPG)
 
@@ -318,6 +322,11 @@ Using LSTMs to project cross-shore positions into the future for an entire secti
 ![projectioncape](images/CapeProject.png)
 
 # Merge Projections
+
+With timeseries of projected cross-shore positions, as well as the transects at which the timeseries data was originally extracted from,
+we can re-cast these values into UTM coordinates with simple trigonmetry. 
+
+![projection_geom](projection_geometry.PNG)
 
 Hit Merge Projections
 
