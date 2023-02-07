@@ -326,7 +326,7 @@ Using LSTMs to project cross-shore positions into the future for an entire secti
 With timeseries of projected cross-shore positions, as well as the transects at which the timeseries data was originally extracted from,
 we can re-cast these values into UTM coordinates with simple trigonmetry. 
 
-![projection_geom](projection_geometry.PNG)
+![projection_geom](images/projection_geometry.PNG)
 
 Hit Merge Projections
 
