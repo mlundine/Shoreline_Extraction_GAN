@@ -56,6 +56,8 @@ Northern end of Assateague Island, Maryland
 
 ![AssateagueN](images/AssateagueN.PNG)
 
+# Synopsis
+
 Data-driven satellite shoreline analysis with GANs and LSTMs. 
 
 How can we use satellite imagery to quantify historical patterns in sandy beach dynamics?
