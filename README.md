@@ -252,7 +252,7 @@ Hit Make Transects.
 
 Hit Make Timeseries.
 
-![timeseries_diagram](images/generating_timeseries.png)
+![timeseries_diagram](images/generating_timeseries.PNG)
 
 ![timeseries](/images/make_timeseries_screen.JPG)
 
