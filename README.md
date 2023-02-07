@@ -53,11 +53,19 @@ Training data outlined in black in each image.
 
 ![italy_domain](/images/Italy_Model_Domain.JPG)
 
+Augmentations can help increase the variability in the annotation dataset.
 Augmentations included vertical flip, horizontal flip, 90 degree CW rotation, 90 degree CCW rotation, and combined vertical and horizontal flip.
+These augmentations were chosen to show the model more spatial configurations of beaches.
 
 ![augementations](/images/augmentation.png)
 
 Total set of labeled images was 128,012. Split was 80% training, 10% validation, and 10% testing.
+* Training images are used to calculate training loss throughout training. 
+  During model training, the aim is to update the model's parameters to minimize the training loss.
+* Validation images are used to independently assess the model's error throughout the training procedure. 
+  These are not shown to the model during training nor are they used to update model weights.
+* Testing images are used to indepently assess the final chosen model. 
+  These are not shown to the model during training nor are they used to update model weights.
 
 # GAN Training Details
 
@@ -165,6 +173,15 @@ You will need the corner coordinates to download imagery:
 Then select which satellites you would like to pull imagery from (L5, L7, L8, and/or S2).
 
 Once everything is ready, hit Start Download. This will make a new folder data/sitename where images get saved.
+
+Optionally, you can choose a shapefile with already constructed study areas. This is useful if you wish to download imagery from many study areas.
+* If you are doing the shapefile download, make sure this option is checked. 
+* Fill in the dates, the satellite choices, and put in a base site name.
+  Each study area will have a number appended to the given base site name (Delaware1, Delaware2, Delaware3, etc).
+* Give the starting and ending index of the features in the shapefile you want to use (ex: first five study areas would be starting index 1 and ending index 5).
+* You can leave the coordinates blank.
+* Hit Start Download, and then point it towards the shapefile containing your study areas.
+
 
 The metadata for all of the images are saved to a csv in this folder.
 

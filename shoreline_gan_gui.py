@@ -54,12 +54,15 @@ class Window(QMainWindow):
         self.home()
 
     ##downloads satellite imagery
-    def start_downloading_button(self, sitename, dates, polygonStuff, satChecks):
+    def start_downloading_button(self, sitename, dates, polygonStuff, satChecks, start_idx, end_idx):
         polygon = []
         for point in polygonStuff:
-            long = float(point[0])
-            lat = float(point[1])
-            polygon.append([long,lat])
+            try:
+                long = float(point[0])
+                lat = float(point[1])
+                polygon.append([long,lat])
+            except:
+                pass
         satList = []
         if satChecks[0].isChecked() == True:
             satList.append('S2')
@@ -69,8 +72,14 @@ class Window(QMainWindow):
             satList.append('L7')
         if satChecks[3].isChecked() == True:
             satList.append('L8')
-            
-        download_utils.download_imagery(polygon, dates, satList, sitename)
+
+        if satChecks[4].isChecked() == True:
+            options = QFileDialog.Options()
+            shapefile, _ = QFileDialog.getOpenFileName(self,"Select Study Area Shapefile", "","ESRI Shapefiles (*.shp)", options=options)
+            if shapefile:
+                download_utils.download_from_shapefile(shapefile, dates, satList, sitename, start_idx, end_idx)
+        else:
+            download_utils.download_imagery(polygon, dates, satList, sitename)
         
     ## Clicking the exit button hides all of the buttons above it
     def exit_buttons(self, buttons):
@@ -90,6 +99,29 @@ class Window(QMainWindow):
         name = QLineEdit()
         self.vbox.addWidget(nameLabel, 1,1)
         self.vbox.addWidget(name,2,1)
+
+        shapefile_input_lab = QLabel('Shapefile Input')
+        shapefile_input = QCheckBox()
+        self.vbox.addWidget(shapefile_input_lab, 1, 2)
+        self.vbox.addWidget(shapefile_input, 2, 2)
+
+        start_idx_lab = QLabel('Shapefile Start Index')
+        start_idx = QSpinBox()
+        start_idx.setValue(0)
+        start_idx.setMaximum(999)
+        start_idx.setMinimum(1)
+        self.vbox.addWidget(start_idx_lab, 1, 3)
+        self.vbox.addWidget(start_idx, 2, 3)
+
+        end_idx_lab = QLabel('Shapefile End Index')
+        end_idx = QSpinBox()
+        end_idx.setValue(10)
+        end_idx.setMaximum(9999)
+        end_idx.setMinimum(2)
+        self.vbox.addWidget(end_idx_lab, 1, 4)
+        self.vbox.addWidget(end_idx, 2, 4)
+        
+        
         
         beginDateLabel = QLabel('Beginning Date (YYYY-MM-DD)')
         beginDate  = QLineEdit()
@@ -168,7 +200,10 @@ class Window(QMainWindow):
                    s2check, L5checkLabel,
                    L5check, L7checkLabel,
                    L7check, L8checkLabel,
-                   L8check]
+                   L8check, shapefile_input_lab,
+                   shapefile_input, start_idx_lab,
+                   start_idx, end_idx_lab,
+                   end_idx]
         polygonStuff = [[topRightLong.text(), topRightLat.text()],
                         [topLeftLong.text(), topLeftLat.text()],
                         [botRightLong.text(), botRightLat.text()],
@@ -177,7 +212,7 @@ class Window(QMainWindow):
                         ]
         
         dates = [beginDate.text(), endDate.text()]
-        checkboxes = [s2check, L5check, L7check, L8check]    
+        checkboxes = [s2check, L5check, L7check, L8check, shapefile_input]    
         #Actions
         start_downloading.clicked.connect(lambda: self.start_downloading_button(name.text(),
                                                                                [beginDate.text(), endDate.text()],
@@ -186,7 +221,7 @@ class Window(QMainWindow):
                                                                                [botRightLong.text(), botRightLat.text()],
                                                                                [botLeftLong.text(), botLeftLat.text()],
                                                                                [topRightLong.text(),topRightLat.text()]],
-                                                                               checkboxes))
+                                                                               checkboxes, start_idx.value(), end_idx.value()))
         exit_button.clicked.connect(lambda: self.exit_buttons(buttons))
 
 

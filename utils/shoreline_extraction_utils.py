@@ -498,7 +498,7 @@ def extract_shorelines(pix2pix_outputs,
         fig, ax = plt.subplots()
         ax.imshow(one_real_copy,interpolation='nearest')
 
-        ax.plot(contour_one_simple_smooth[:, 1], contour_one_simple_smooth[:, 0], linewidth=1,color='g')
+        ax.plot(contour_one_simple_smooth[:, 1], contour_one_simple_smooth[:, 0], linewidth=3,color='g')
 
         ax.axis('image')
         ax.set_xticks([])
@@ -510,7 +510,7 @@ def extract_shorelines(pix2pix_outputs,
         fig, ax = plt.subplots()
         ax.imshow(two_real_copy,interpolation='nearest')
 
-        ax.plot(contour_two_simple_smooth[:, 1], contour_two_simple_smooth[:, 0], linewidth=1,color='g')
+        ax.plot(contour_two_simple_smooth[:, 1], contour_two_simple_smooth[:, 0], linewidth=3,color='g')
 
         ax.axis('image')
         ax.set_xticks([])
