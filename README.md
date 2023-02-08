@@ -142,18 +142,6 @@ Final model run on the test dataset.
 
 ![dice_test](/images/testing_epoch_15.png)
 
-# Shoreline Extraction Deviation from Manual Delineation
-
-How do the model extracted shorelines compare (in terms of meters) to manually delineated shorelines?
-
-![geo_assessment](/images/epochs_vs_median_shoreline_deviation.png)
-
-Final model run on the test dataset.
-![geo_assessment_test](/images/test_15_med_deviation_hist.png)
-
-Median deviation is around 16 m. Likely is lower for Sentinel-2 imagery (10-m resolution) and higher for Landsat 5, 7, and 8 (30-m resolution).
-Model performs worse on noisy/cloudy imagery.
-
 # Test Dataset Examples
 
 ![test_examples](/images/OutputsExamplesMat.png)
