@@ -158,7 +158,7 @@ You will need a Windows PC, an NVIDIA graphics card, and Anaconda to run this so
 
 Anaconda can be downloaded [here](https://www.anaconda.com/products/distribution).
 
-Download the source code, latest_net_G.pth, and latest_net_D.pth from the latest Release.
+Download the source code, latest_net_G.pth, and latest_net_D.pth from the latest [Release](https://github.com/mlundine/Shoreline_Extraction_GAN/releases).
 
 Unzip the source code somewhere on your machine and remove the version tag from the outermost directory so that it reads "Shoreline_Extraction_GAN".
 
@@ -419,7 +419,7 @@ To use this tool, hit "Get Linear Trend Shapefile"
 
 # Project Timeseries
 
-Tutorial Video
+Tutorial Videos
 * [12. Projecting Timeseries a)](https://drive.google.com/file/d/1u2eZ6dROaYcF-vt_T2JV_90gZsU3g6cM/view?usp=sharing)
 * [13. Projecting Timeseries b)](https://drive.google.com/file/d/1K3LL2_HvNrEgXIjUcMwqpadBCkcfwjVQ/view?usp=sharing)
 
