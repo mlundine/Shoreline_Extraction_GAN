@@ -149,10 +149,10 @@ Final model run on the test dataset.
 # Setup
 
 Tutorial Videos:
-![1. Downloading Anaconda](https://drive.google.com/file/d/1mo3qzJwXKc3jsPAT3bEwZMjwo4qby4u3/view?usp=sharing)
-![2. Repository Download](https://drive.google.com/file/d/1ESlgUuEczr4HWxeW5sYcanG-Dumb0Vkh/view?usp=sharing)
-![3. Setting Up Anaconda Environments](https://drive.google.com/file/d/1gDhRgwrC53VqtSo9KDsyUXcAEl4hGO4t/view?usp=sharing)
-![4. Checking Anaconda Environment Setup](https://drive.google.com/file/d/1xXtTi_VmDIS9Vcyj7bvUQQhlf6z2MAL_/view?usp=sharing)
+*  [1. Downloading Anaconda](https://drive.google.com/file/d/1mo3qzJwXKc3jsPAT3bEwZMjwo4qby4u3/view?usp=sharing)
+*  [2. Repository Download](https://drive.google.com/file/d/1ESlgUuEczr4HWxeW5sYcanG-Dumb0Vkh/view?usp=sharing)
+*  [3. Setting Up Anaconda Environments](https://drive.google.com/file/d/1gDhRgwrC53VqtSo9KDsyUXcAEl4hGO4t/view?usp=sharing)
+*  [4. Checking Anaconda Environment Setup](https://drive.google.com/file/d/1xXtTi_VmDIS9Vcyj7bvUQQhlf6z2MAL_/view?usp=sharing)
 
 You will need a Windows PC, an NVIDIA graphics card, and Anaconda to run this software.
 
@@ -180,7 +180,8 @@ Use Anaconda to set these up.
 
 # Start Up
 
-
+Tutorial Video:
+*  [5. GUI Start Up](https://drive.google.com/file/d/1nfKQxZ1qA2yMjGDxL8sOJKHhf_8DZ9bL/view?usp=sharing)
 
 shoreline_gan_gui.py contains a gui for running this project.
 
@@ -197,6 +198,9 @@ The GUI should look like this, with eight separate buttons for various tasks rel
 ![home_screen](/images/home_screen.JPG)
 
 # Downloading satellite data
+
+Tutorial Video
+*  [6. Downloading Imagery](https://drive.google.com/file/d/19DpOH9qtnXP_5VgdBC2MF_qP4AKo7Cj-/view?usp=sharing)
 
 Click on 1. Download Imagery.
 
@@ -244,9 +248,10 @@ Optionally, you can choose a shapefile with already constructed study areas. Thi
 * Hit Start Download, and then point it towards the shapefile containing your study areas.
 
 
-
-
 # Preprocessing for pix2pix
+
+Tutorial Video
+* [6. Preprocessing Images](https://drive.google.com/file/d/1xBZ1kAiYIvqtHaFTX8SpFo7aJ7PHL2fC/view?usp=sharing)
 
 Before running pix2pix, the images need to be split and resized into 256 x 256.
 
