@@ -148,7 +148,7 @@ Final model run on the test dataset.
 
 # Setup
 
-Tutorial Videos:
+Tutorial Videos
 *  [1. Downloading Anaconda](https://drive.google.com/file/d/1mo3qzJwXKc3jsPAT3bEwZMjwo4qby4u3/view?usp=sharing)
 *  [2. Repository Download](https://drive.google.com/file/d/1ESlgUuEczr4HWxeW5sYcanG-Dumb0Vkh/view?usp=sharing)
 *  [3. Setting Up Anaconda Environments](https://drive.google.com/file/d/1gDhRgwrC53VqtSo9KDsyUXcAEl4hGO4t/view?usp=sharing)
@@ -180,12 +180,12 @@ Use Anaconda to set these up.
 
 # Start Up
 
-Tutorial Video:
+Tutorial Video
 *  [5. GUI Start Up](https://drive.google.com/file/d/1nfKQxZ1qA2yMjGDxL8sOJKHhf_8DZ9bL/view?usp=sharing)
 
 shoreline_gan_gui.py contains a gui for running this project.
 
-After the two necessary Anaconda environments have been created, activate the shoreline_gan environment.
+After the three necessary Anaconda environments have been created, activate the shoreline_gan environment.
 
     conda activate shoreline_gan
     
@@ -251,7 +251,7 @@ Optionally, you can choose a shapefile with already constructed study areas. Thi
 # Preprocessing for pix2pix
 
 Tutorial Video
-* [6. Preprocessing Images](https://drive.google.com/file/d/1xBZ1kAiYIvqtHaFTX8SpFo7aJ7PHL2fC/view?usp=sharing)
+* [7. Preprocessing Images](https://drive.google.com/file/d/1xBZ1kAiYIvqtHaFTX8SpFo7aJ7PHL2fC/view?usp=sharing)
 
 Before running pix2pix, the images need to be split and resized into 256 x 256.
 
@@ -261,6 +261,9 @@ This should be under data/sitename/jpg_files/preprocessed.
 It will save the pix2pix ready images (each image gets split into a 'one' and 'two' image) to data/sitename/jpg_files/pix2pix_ready.
 
 # Shoreline_Extraction
+
+Tutorial Video
+*  [8. Shoreline Extraction](https://drive.google.com/file/d/1ub8m2Awa18I-Sj4vQ0huMapZiCOu3Ymo/view?usp=sharing)
 
 Hit Shoreline Extraction.
 
@@ -309,7 +312,11 @@ Hit Shoreline Extraction.
 * The shapefiles with the vtx filter will provide the best results. Using a reference shoreline or a reference region will greatly limit any additional editing in GIS software.
 
 ![filters](/images/filtering.png)
+
 # Make Transects
+
+Tutorial Video
+* [9. Making Transects](https://drive.google.com/file/d/1uSOG-kzbiFzqLFjWD2OZiadokWlId_UW/view?usp=sharing)
 
 ![transects_ex](/images/generate_transects.png)
 
@@ -332,6 +339,9 @@ Hit Make Transects.
 * Check that the transects look correct in GIS software.
 
 # Make Timeseries
+
+Tutorial Video
+* [10. Making Timeseries](https://drive.google.com/file/d/1g5o1H1ZsgFL0_ie1D7uKoIRV3Ve89R6R/view?usp=sharing)
 
 Hit Make Timeseries.
 
@@ -360,6 +370,9 @@ Hit Make Timeseries.
 
 
 # Making Linear Trend Shapefile
+
+Tutorial Video
+*  [11. Making Linear Trend Shapefile](https://drive.google.com/file/d/1Bd9AIKezy-_wd26vdKE6dqSSlRTHjIAp/view?usp=sharing)
 
 This tool allows for the construction of shapefiles that help with visualization of linear trends computed on each transect's cross-shore position timeseries.
 Each transect will be re-scaled and the direction changed to correspond with the value of the computed linear trend.
@@ -406,6 +419,10 @@ To use this tool, hit "Get Linear Trend Shapefile"
 
 # Project Timeseries
 
+Tutorial Video
+* [12. Projecting Timeseries a)](https://drive.google.com/file/d/1u2eZ6dROaYcF-vt_T2JV_90gZsU3g6cM/view?usp=sharing)
+* [13. Projecting Timeseries b)](https://drive.google.com/file/d/1K3LL2_HvNrEgXIjUcMwqpadBCkcfwjVQ/view?usp=sharing)
+
 Hit Project Timeseries
 
 ![project_timeseries](/images/project_timeseries_screen.JPG)
@@ -451,6 +468,9 @@ Using LSTMs to project cross-shore positions into the future for an entire secti
 ![projectioncape](images/CapeProject.png)
 
 # Merge Projections
+
+Tutorial Video
+*  [14. Merging Projections](https://drive.google.com/file/d/1mKG4G_gLU7mjz79GFxuIuqPtDOS7K2gi/view?usp=share_link)
 
 With timeseries of projected cross-shore positions, as well as the transects at which the timeseries data was originally extracted from,
 we can re-cast these values into UTM coordinates with simple trigonmetry. 
