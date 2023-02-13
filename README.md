@@ -492,8 +492,8 @@ Hit Merge Projections
 
 * Upon clicking Run, you will need to feed it the folder holding the extracted timeseries, then the folder holding the projected timeseries, and then the shapefile holding the transects.
 
-* It will save the two shapefiles (projected shorelines and projected confidence intervals) into the projected timeseries folder. 
-* It will also add northings and eastings as columns to each projected timeseries csv.
+* It will save four shapefiles (predicted and projected shorelines, predicted and projected confidence intervals) into the projected timeseries folder. 
+* It will also add northings and eastings as columns to each timeseries csv.
 
 * Will not work if a shoreline has multiple solutions along one of the transects at a single time. 
 Consequently, areas with extremely complex 2D longshore morphologies are not suitable for this type of modeling approach.
