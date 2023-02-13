@@ -11,7 +11,13 @@ def plot_timeseries_with_rolling_means_and_linear_fit(data, projection=10):
     name = os.path.basename(data)
     name = os.path.splitext(name)[0]
     new_name = name+'roll_proj.png'
+    new_name2 = name+'yearly_moving_avg.png'
+    new_name3 = name+'sixmonth_moving_avg.png'
+    new_name4 = name+'threemonth_moving_avg.png'
     fig_path = os.path.join(folder, new_name)
+    fig_path2 = os.path.join(folder, new_name2)
+    fig_path3 = os.path.join(folder, new_name3)
+    fig_path4 = os.path.join(folder, new_name4)
 
     df = pd.read_csv(data)
     df.reset_index()
@@ -71,3 +77,41 @@ def plot_timeseries_with_rolling_means_and_linear_fit(data, projection=10):
     plt.tight_layout()
     plt.savefig(fig_path,dpi=300)
     plt.close()
+
+    print(y3.head())
+    plt.plot(datetimes, y3.shoreline, color='navy', label='Yearly Moving Average')
+    plt.minorticks_on()
+    plt.xticks(rotation=90)
+    plt.xlabel('Time (UTC)')
+    plt.ylabel('Cross-Shore Position (m)')
+    plt.xlim(min(datetimes), max(datetimes))
+    plt.ylim(min(y3.shoreline), max(y3.shoreline))
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(fig_path2,dpi=300)
+    plt.close()
+
+    plt.plot(datetimes, y2.shoreline, color='navy', label='Six Month Moving Average')
+    plt.minorticks_on()
+    plt.xticks(rotation=90)
+    plt.xlabel('Time (UTC)')
+    plt.ylabel('Cross-Shore Position (m)')
+    plt.xlim(min(datetimes), max(datetimes))
+    plt.ylim(min(y2.shoreline), max(y2.shoreline))
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(fig_path3,dpi=300)
+    plt.close()
+
+    plt.plot(datetimes, y1.shoreline, color='navy', label='Three Month Moving Average')
+    plt.minorticks_on()
+    plt.xticks(rotation=90)
+    plt.xlabel('Time (UTC)')
+    plt.ylabel('Cross-Shore Position (m)')
+    plt.xlim(min(datetimes), max(datetimes))
+    plt.ylim(min(y1.shoreline), max(y1.shoreline))
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(fig_path4,dpi=300)
+    plt.close()
+

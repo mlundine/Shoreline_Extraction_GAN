@@ -146,7 +146,27 @@ Final model run on the test dataset.
 
 ![test_examples](/images/OutputsExamplesMat.png)
 
-# Anaconda Environment Setup
+# Setup
+
+Tutorial Videos:
+![1. Downloading Anaconda](https://drive.google.com/file/d/1mo3qzJwXKc3jsPAT3bEwZMjwo4qby4u3/view?usp=sharing)
+![2. Repository Download](https://drive.google.com/file/d/1ESlgUuEczr4HWxeW5sYcanG-Dumb0Vkh/view?usp=sharing)
+![3. Setting Up Anaconda Environments](https://drive.google.com/file/d/1gDhRgwrC53VqtSo9KDsyUXcAEl4hGO4t/view?usp=sharing)
+![4. Checking Anaconda Environment Setup](https://drive.google.com/file/d/1xXtTi_VmDIS9Vcyj7bvUQQhlf6z2MAL_/view?usp=sharing)
+
+You will need a Windows PC, an NVIDIA graphics card, and Anaconda to run this software.
+
+Anaconda can be downloaded [here](https://www.anaconda.com/products/distribution).
+
+Download the source code, latest_net_G.pth, and latest_net_D.pth from the latest Release.
+
+Unzip the source code somewhere on your machine and remove the version tag from the outermost directory so that it reads "Shoreline_Extraction_GAN".
+
+Make a new directory in .../Shoreline_Extraction_GAN/pix2pix_modules/ called "checkpoints".
+
+Make a new directory in .../Shoreline_Extraction_GAN/pix2pix_modules/checkpoints called "shoreline_gan_nov".
+
+Place latest_net_G.pth and latest_net_D.pth in .../Shoreline_Extraction_GAN/pix2pix_modules/checkpoints/shoreline_gan_nov.
 
 envs/ holds three environment files that list all of the requirements.
 
@@ -159,6 +179,8 @@ Use Anaconda to set these up.
     conda env create --file envs/shoreline_gan.yml
 
 # Start Up
+
+
 
 shoreline_gan_gui.py contains a gui for running this project.
 

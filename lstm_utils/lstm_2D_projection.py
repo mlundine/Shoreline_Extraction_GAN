@@ -16,9 +16,14 @@ def gb(x1, y1, x2, y2):
 def single_transect(projection_df_path, transect_id, transect_shp_path, firstX, firstY, switch_dir=False):
     ##Open file, assign variables
     projection_df = pd.read_csv(projection_df_path)
-    means = projection_df['forecast_mean_position']
-    uppers = projection_df['forecast_upper_conf']
-    lowers = projection_df['forecast_lower_conf']
+    try:
+        means = projection_df['forecast_mean_position']
+        uppers = projection_df['forecast_upper_conf']
+        lowers = projection_df['forecast_lower_conf']
+    except:
+        means = projection_df['predicted_mean_position']
+        uppers = projection_df['predicted_upper_conf']
+        lowers = projection_df['predicted_lower_conf']
 
     ##Get the angle of the transect
     transect_df = gpd.read_file(transect_shp_path)
@@ -88,9 +93,11 @@ def lists_to_LineString(list1, list2):
 
 def multiple_transects(projection_df_path_list,
                        extracted_df_path_list,
+                       predicted_df_path_list,
                        transect_ids,
                        transect_shp_path,
                        projection_times,
+                       prediction_times,
                        savefolder,
                        sitename,
                        epsg,
@@ -100,8 +107,10 @@ def multiple_transects(projection_df_path_list,
     One that contains mean LSTM shoreline projections (so lines with a timestamp)
     ONe that contains confidence interval polygons (polygons with a timestamp)
     """
-    mean_savepath = os.path.join(savefolder, sitename+'_'+str(transect_ids[0])+'to'+str(transect_ids[-1])+'_mean_shorelines.shp')
-    conf_savepath = os.path.join(savefolder, sitename+'_confidence_intervals.shp')
+    mean_savepath = os.path.join(savefolder, sitename+'_'+str(transect_ids[0])+'to'+str(transect_ids[-1])+'projected_mean_shorelines.shp')
+    conf_savepath = os.path.join(savefolder, sitename+'_'+str(transect_ids[0])+'to'+str(transect_ids[-1])+'projected_confidence_intervals.shp')
+    mean_pred_savepath = os.path.join(savefolder, sitename+'_'+str(transect_ids[0])+'to'+str(transect_ids[-1])+'predicted_mean_shorelines.shp')
+    conf_pred_savepath = os.path.join(savefolder, sitename+'_'+str(transect_ids[0])+'to'+str(transect_ids[-1])+'predicted_confidence_intervals.shp')
     time = projection_times
     years = [None]*len(time)
     for i in range(len(time)):
@@ -168,6 +177,74 @@ def multiple_transects(projection_df_path_list,
     shapefile_mean_geodf.to_file(mean_savepath)
     shapefile_confidence_intervals_geodf.to_file(conf_savepath)
 
+
+    ##now do over observed data
+    time = prediction_times
+    years = [None]*len(time)
+    for i in range(len(time)):
+        ts = time[i]
+        year = ts[0:4]
+        years[i] = int(year)
+    
+    new_pred_path_list = [None]*len(predicted_df_path_list)
+    for i in range(len(predicted_df_path_list)):
+        predicted_df_path = predicted_df_path_list[i]
+        print(os.path.basename(predicted_df_path))
+        transect_id = transect_ids[i]
+        extracted_df = pd.read_csv(extracted_df_path_list[i])
+        firstX = extracted_df['eastings'][0]
+        firstY = extracted_df['northings'][0]
+        new_predicted_df_path = single_transect(predicted_df_path, transect_id, transect_shp_path, firstX, firstY, switch_dir=switch_dir)
+        new_pred_path_list[i] = new_predicted_df_path
+
+    ###Should have length of projected time
+    shapefile_mean_dict = {'Timestamp':time,
+                           'Year':years}
+    shapefile_mean_df = pd.DataFrame(shapefile_mean_dict)
+    shapefile_mean_geoms = [None]*len(shapefile_mean_df)
+
+    shapefile_confidence_intervals_dict = {'Timestamp':time,
+                                           'Year':years}
+    shapefile_confidence_intervals_df = pd.DataFrame(shapefile_confidence_intervals_dict)
+    shapefile_confidence_intervals_geoms = [None]*len(shapefile_confidence_intervals_df)
+    ###Loop over projected time
+    for i in range(len(time)):
+        ###Make empty lists to hold mean coordinates, upper and lower conf coordinates
+        ###These are for one time
+        shoreline_eastings = [None]*len(transect_ids)
+        shoreline_northings = [None]*len(transect_ids)
+        shoreline_eastings_upper = [None]*len(transect_ids)
+        shoreline_northings_upper = [None]*len(transect_ids)
+        shoreline_eastings_lower = [None]*len(transect_ids)
+        shoreline_northings_lower = [None]*len(transect_ids)
+        timestamp = [time[i]]*len(transect_ids)
+        for j in range(len(new_proj_path_list)):
+            transect_id = transect_ids[j]
+            pred_path = new_pred_path_list[j]
+            pred_df = pd.read_csv(pred_path)
+            shoreline_eastings[j] = pred_df['eastings_mean'][i]
+            shoreline_northings[j] = pred_df['northings_mean'][i]
+            shoreline_eastings_upper[j] = pred_df['eastings_upper'][i]
+            shoreline_northings_upper[j] = pred_df['northings_upper'][i]
+            shoreline_eastings_lower[j] = pred_df['eastings_lower'][i]
+            shoreline_northings_lower[j] = pred_df['northings_lower'][i]
+        confidence_interval_x = np.concatenate((shoreline_eastings_upper, list(reversed(shoreline_eastings_lower))))
+        confidence_interval_y = np.concatenate((shoreline_northings_upper, list(reversed(shoreline_northings_lower))))
+        
+        confidence_interval_polygon = lists_to_Polygon(confidence_interval_x, confidence_interval_y)
+        shapefile_confidence_intervals_geoms[i] = confidence_interval_polygon
+        
+        mean_shoreline_line = lists_to_LineString(shoreline_eastings, shoreline_northings)
+        shapefile_mean_geoms[i] = mean_shoreline_line
+        
+    shapefile_mean_geodf = gpd.GeoDataFrame(shapefile_mean_df, geometry = shapefile_mean_geoms)
+    shapefile_mean_geodf = shapefile_mean_geodf.set_crs('epsg:'+str(epsg))
+    shapefile_confidence_intervals_geodf = gpd.GeoDataFrame(shapefile_confidence_intervals_df, geometry = shapefile_confidence_intervals_geoms)
+    shapefile_confidence_intervals_geodf = shapefile_confidence_intervals_geodf.set_crs('epsg:'+str(epsg))
+    
+    shapefile_mean_geodf.to_file(mean_pred_savepath)
+    shapefile_confidence_intervals_geodf.to_file(conf_pred_savepath)
+
 def main(sitename,
          transect_id_min,
          transect_id_max,
@@ -193,20 +270,26 @@ def main(sitename,
     transect_ids = range(transect_id_min, transect_id_max+1)
     projection_df_path_list = [None]*len(transect_ids)
     extracted_df_path_list = [None]*len(projection_df_path_list)
+    prediction_df_path_list = [None]*len(transect_ids)
     for j in range(len(transect_ids)):
         i = transect_ids[j]
         projected = os.path.join(projected_folder, sitename+'_'+str(i)+'project.csv')
         extracted = os.path.join(extracted_folder, sitename+'_'+str(i)+'.csv')
+        predicted = os.path.join(projected_folder, sitename+'_'+str(i)+'predict.csv')
         projection_df_path_list[j] = projected
         extracted_df_path_list[j] = extracted
+        prediction_df_path_list[j] = predicted
 
     projection_times = pd.read_csv(projection_df_path_list[0])['time']
+    prediction_times = pd.read_csv(prediction_df_path_list[0])['time']
 
     multiple_transects(projection_df_path_list,
                        extracted_df_path_list,
+                       prediction_df_path_list,
                        transect_ids,
                        transect_shp_path,
                        projection_times,
+                       prediction_times,
                        save_folder,
                        sitename,
                        epsg,

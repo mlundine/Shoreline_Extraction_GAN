@@ -133,7 +133,7 @@ def train_model(train_generator,
 
     
     
-    return model
+    return model, history
 
 def predict_data(model, prediction_generator):
     prediction = model.predict_generator(prediction_generator)
@@ -252,7 +252,8 @@ def process_results(sitename,
         new_df_dict = {'time': date_predict,
                        'predicted_mean_position': prediction_mean,
                        'predicted_upper_conf': upper_conf_interval,
-                       'predicted_lower_conf': lower_conf_interval}
+                       'predicted_lower_conf': lower_conf_interval,
+                       'observed_position': gt_vals[lookback:]}
         new_df = pd.DataFrame(new_df_dict)
         new_df.to_csv(os.path.join(folder, site+'predict.csv'),index=False)
 
@@ -282,6 +283,14 @@ def process_results(sitename,
 
         idx=idx+1
         
+def plot_history(history):
+    plt.plot(history.history['loss'], color='b')
+    plt.plot(history.history['val_loss'], color='r')
+    plt.minorticks_on()
+    plt.ylabel('Mean Absolute Error (m)')
+    plt.xlabel('Epoch')
+    plt.legend(['Training Data', 'Validation Data'],loc='upper right')
+    
 def main(transect_folder,
          output_folder,
          sitename,
@@ -317,12 +326,16 @@ def main(transect_folder,
     mega_arr_forecast = np.zeros((num_prediction+1, n_features, bootstrap))
     for i in range(bootstrap):
         reset_keras()
-        model = train_model(train_generator,
+        model, history = train_model(train_generator,
                             test_generator,
                             num_epochs,
                             look_back,
                             units,
                             n_features)
+        plot_history(history)
+        if i == bootstrap-1:
+            plt.savefig(os.path.join(output_folder, 'loss_plot.png'), dpi=300)
+            plt.close()
         prediction = predict_data(model, prediction_generator)
         mega_arr_pred[:,:,i] = prediction
         forecast, forecast_dates = project(mega_df,

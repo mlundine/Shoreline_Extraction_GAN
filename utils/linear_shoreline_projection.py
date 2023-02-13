@@ -70,10 +70,10 @@ def plot_timeseries_with_fit(data, projection=10):
     fit1x = x
     fit1y = slope1*fit1x + intercept1
 
-    residual = fit1y - shore_pos
+    residual = shore_pos - fit1y
     plt.plot(datetimes, residual)
     plt.xlabel('Time (UTC)')
-    plt.ylabel('Linear Trend - Observed (m)')
+    plt.ylabel('Observed - Linear Trend (m)')
     plt.xlim(min(datetimes), max(datetimes))
     plt.ylim(min(residual), max(residual))
     plt.minorticks_on()
