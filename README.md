@@ -75,7 +75,11 @@ Input: 256x256 RGB coastal satellite imagery is the input data.
 
 1. These images get segmented into land and water binary images by the GAN (which consists of a 256x256 U-Net for the generator and a Patch-GAN for the discriminator, pix2pix-style).
 2. Marching squares contouring algorithm is then used to delineate the land/water boundary.
+![marching_squares](/images/marching_squares.jpg)
+
 3. The vector outputs from marching squares are then smoothed out using Chaikin's corner cutting algorithm (five refinements).
+![chaikins](/images/chaikins.jpg)
+
 4. Filters:
 	* Recursive 3-sigma vertex filter: discard all shorelines that have mean vertices +/- 3*sigma vertices until no more shorelines can be discarded.
 	* Reference shoreline filter (and buffer radius), all features that lie outside of the buffer radius of the reference shoreline are discarded.
@@ -83,7 +87,7 @@ Input: 256x256 RGB coastal satellite imagery is the input data.
 
 Output: Timestamped vector shorelines
 
-![model_flow](/images/Extraction_steps.png)
+![model_flow](/images/model_diagram.jpg)
 
 # Current Shoreline Extraction Training Data Domain
 
@@ -353,7 +357,7 @@ Tutorial Video
 
 Hit Make Transects.
 
-![transect_diagram](images/transect_diagram.PNG)
+![transect_diagram](images/generating_transects.jpg)
 
 ![transects](/images/make_transects_screen.JPG)
 
@@ -376,7 +380,7 @@ Tutorial Video
 
 Hit Make Timeseries.
 
-![timeseries_diagram](images/generating_timeseries.PNG)
+![timeseries_diagram](images/generating_timeseries.jpg)
 
 ![timeseries](/images/make_timeseries_screen.JPG)
 
