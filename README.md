@@ -146,6 +146,37 @@ Final model run on the test dataset.
 
 ![test_examples](/images/OutputsExamplesMat.png)
 
+# Manually Delineated Vs. Shoreline Extraction Model
+
+This is showing how the deviation in shoreline position between the extracted shorelines 
+and manually delineated shorelines improves through model training on both the training and validation images.
+
+![training_val_geo](/images/epochs_vs_median_shoreline_deviation.png)
+
+This is a box plot of the deviations for the testing images, with shorelines extracted with the final model (epoch 15).
+
+![testing_geo](/images/test_15_med_deviation_box_plot.png)
+
+Here is how the deviations compare from the four separate satellites in box plot form. 
+Landsat 7 has greater variance mainly due to artifacts in Landsat 7 imagery due to the scan-line corrector failure in 2003.
+
+![sat_geo](/images/test_15_med_deviation_box_plot_satellite.png)
+
+Here is how the deviations differ over separate decades in box plot form. We can see greater variance in the 2000s likely again due to the Landsat 7 issues.
+
+![decade_geo](/images/test_15_med_deviation_box_plot_decade.png)
+
+Here is how the deviations differ each year in box plot form.
+
+![year_geo](/images/test_15_med_deviation_boxplot_timeseries.png)
+
+And last here are the median deviations each year as a timeseries.
+
+![year_geo](/images/test_15_med_deviation_timeseries.png)
+
+The deviations are fairly consistent across the available temporal range, meaning the model is providing consistent results no matter the year.
+Larger deviations, and hence poor automated delineation of shorelines, is likely occuring in cloudy and noisy images.
+
 # Setup
 
 Tutorial Videos
