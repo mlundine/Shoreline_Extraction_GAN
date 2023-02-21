@@ -47,7 +47,7 @@ Northern Tuscany, Italy:
 * Bottom Right: Forte dei Marmi
 * Bottom Left: Viareggio
 
-![tuscanytrends](/images/TuscnayPanel.png)
+![tuscanytrends](/images/TuscanyPanel.png)
 
 LSTM Example Outputs from Cape Henlopen
 
