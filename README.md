@@ -17,6 +17,8 @@ Delmarva
 * Bottom Right: Ocean City and Assateague
 * Bottom Left: Fishing Point and Wallops Island
 
+![delmarva_ex](/images/DelmarvaPanel.png)
+
 Jersey Shore
 
 * Top Left: Sandy Hook
@@ -24,12 +26,16 @@ Jersey Shore
 * Bottom Right: Beach Haven
 * Bottom Left: Ocean City
 
+![jersey_ex](/images/NewJerseyPanel.png)
+
 Long Island
 
 * Top Left: Montauk
 * Top Right: Northeastern Fire Island
 * Bottom Right: Jones Beach
 * Bottom Left: Rockaway
+
+![longisland_ex](/images/LongIslandPanel.png)
 
 Northern Tuscany, Italy:
 
