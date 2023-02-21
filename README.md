@@ -4,57 +4,48 @@ Author: Mark Lundine, PhD Candidate, University of Delaware, mlundine@udel.edu
 
 # Some Cool Examples
 
-Cape Henlopen, Delaware, USA
-
-* a growing sandy spit at the mouth of the Delaware estuary, where it meets the mid-Atlantic Ocean
-
-![cool_examples](images/cape_henlopen_shorelines.png)
-
 Delmarva, New Jersey Shore, Long Island, USA
 
 * A mix of estuarine beaches, developed and undeveloped ocean-fronting barrier island beaches on a passive margin
 
-![Mid_Atlantic_Trends](images/Mid_Atlantic_Trends.JPG)
+![Mid_Atlantic_Trends](images/Midatlantictrends_panel.png)
+
+Delmarva
+
+* Top Left: Broadkill Beach
+* Top Right: Cape Henlopen
+* Bottom Right: Ocean City and Assateague
+* Bottom Left: Fishing Point and Wallops Island
+
+Jersey Shore
+
+* Top Left: Sandy Hook
+* Top Right: Brigantine
+* Bottom Right: Beach Haven
+* Bottom Left: Ocean City
+
+Long Island
+
+* Top Left: Montauk
+* Top Right: Northeastern Fire Island
+* Bottom Right: Jones Beach
+* Bottom Left: Rockaway
 
 Northern Tuscany, Italy:
 
 * A litorral cell with highly developed and modified beaches on the Mediterranean Sea
 * Bound by the rocky headlands on the northern and southern ends
 * Fed sediment by the Magra river from the north and the Arno River from the south
+* Top Left: Entire Cell
+* Top Right: Parco Regionale Migliarino
+* Bottom Right: Forte dei Marmi
+* Bottom Left: Viareggio
 
-![tuscanytrends](/images/TuscanyTrends.PNG)
+![tuscanytrends](/images/TuscnayPanel.png)
 
-Sandy Hook, New Jersey, USA
+LSTM Example Outputs from Cape Henlopen
 
-* Another active sandy spit on the end of an ocean-fronting barrier island
-* At the mouth of New York Bay
-
-![sandyhook](images/sandyhook_nj.PNG)
-
-Brigantine, New Jersey, USA
-
-* A partially undeveloped and partially developed barrier island
-
-![brigantine](images/BrigantineNJ.PNG)
-
-Fishing Point and Wallops Island, Virginia
-
-* Complex dynamics occuring at these two barrier island termini
-
-![wallopsfp](images/WallopsFishingPoint.PNG)
-
-Hog Island, Virginia
-
-* Another dynamic barrier island in Virginia
-* Note the observed rotation
-
-![hogisland](images/HogIsland.PNG)
-
-Northern end of Assateague Island, Maryland
-
-* Nourishment here seems to have made a cuspate bump
-
-![AssateagueN](images/AssateagueN.PNG)
+![cape_lstm_fig](/images/LSTM_Shore_panel.png)
 
 # Synopsis
 
