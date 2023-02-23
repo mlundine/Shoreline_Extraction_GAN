@@ -53,9 +53,11 @@ LSTM Example Outputs from Cape Henlopen
 
 ![cape_lstm_fig](/images/LSTM_Shore_panel.png)
 
-# Mid-Atlantic Satellite Shoreline Trends
+# Satellite Shoreline Trends
 
-![WebGIS Viewer Here)[https://sites.udel.edu/mlundine/satellite-shoreline-trends/)
+An interactive web map to visualize the linear trends is available ![here)[https://sites.udel.edu/mlundine/satellite-shoreline-trends/).
+
+This includes data from the US Mid-Atlantic and Northern Tuscany. 
 
 # Synopsis
 
