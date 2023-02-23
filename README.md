@@ -53,6 +53,9 @@ LSTM Example Outputs from Cape Henlopen
 
 ![cape_lstm_fig](/images/LSTM_Shore_panel.png)
 
+
+<style>.embed-container {position: relative; padding-bottom: 80%; height: 0; max-width: 100%;} .embed-container iframe, .embed-container object, .embed-container iframe{position: absolute; top: 0; left: 0; width: 100%; height: 100%;} small{position: absolute; z-index: 40; bottom: 0; margin-bottom: -15px;}</style><div class="embed-container"><iframe width="500" height="400" frameborder="0" scrolling="no" marginheight="0" marginwidth="0" title="Mid-Atlantic Satellite Shoreline Trends" src="//udel.maps.arcgis.com/apps/Embed/index.html?webmap=8026501b476243fa8100a1d856184649&extent=-83.3065,35.5946,-70.6612,41.9839&zoom=true&previewImage=true&scale=true&legendlayers=true&disable_scroll=true&theme=dark"></iframe></div>
+
 # Synopsis
 
 Data-driven satellite shoreline analysis with GANs and LSTMs. 
