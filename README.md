@@ -55,7 +55,7 @@ LSTM Example Outputs from Cape Henlopen
 
 # Satellite Shoreline Trends
 
-An interactive web map to visualize the linear trends is available [here][https://sites.udel.edu/mlundine/satellite-shoreline-trends/).
+An interactive web map to visualize the linear trends is available [here](https://sites.udel.edu/mlundine/satellite-shoreline-trends/).
 
 This includes data from the US Mid-Atlantic and Northern Tuscany. 
 
