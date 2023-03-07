@@ -11,7 +11,8 @@ def main(transect_folder,
          units=80,
          batch_size=32,
          lookback=3,
-         split_percent=0.80):
+         split_percent=0.80,
+         freq='monthly'):
     """
     Projects timeseries of cross-shore position with a LSTM
     Will save a timeseries figure and a csv for each transect
@@ -38,7 +39,8 @@ def main(transect_folder,
     cmd12 = ' --batch_size ' + str(batch_size)
     cmd13 = ' --lookback ' + str(lookback)
     cmd14 = ' --split_percent ' + str(split_percent)
-    fullcmd = cmd1+cmd2+cmd3+cmd4+cmd5+cmd6+cmd7+cmd8+cmd9+cmd10+cmd11+cmd12+cmd13+cmd14
+    cmd15 = ' --freq ' + freq
+    fullcmd = cmd1+cmd2+cmd3+cmd4+cmd5+cmd6+cmd7+cmd8+cmd9+cmd10+cmd11+cmd12+cmd13+cmd14+cmd15
     os.system(fullcmd)
     gc.collect()
 

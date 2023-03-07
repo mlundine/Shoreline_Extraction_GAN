@@ -57,7 +57,8 @@ def project(mega_df,
             look_back,
             num_prediction,
             n_features,
-            model):
+            model,
+            freq):
 
 
     ##original dimesion is time x transect
@@ -76,7 +77,15 @@ def project(mega_df,
     #prediction = scaler.inverse_transform(prediction)
 
     last_date = mega_df.index.values[-1]
-    prediction_dates = pd.date_range(last_date, periods=num_prediction+1, freq='31D').tolist()
+    if freq=='monthly':
+        frequency='31D'
+    elif freq=='seasonally':
+        frequency='91D'
+    elif freq=='biannually':
+        frequency='182D'
+    elif freq=='yearly':
+        frequency='365D'
+    prediction_dates = pd.date_range(last_date, periods=num_prediction+1, freq=frequency).tolist()
         
 
     forecast = prediction
@@ -155,7 +164,8 @@ def get_csvs(folder,
     return csvs
 
 def get_mega_df(csv_paths,
-                base):
+                base,
+                freq):
     name = os.path.splitext(os.path.basename(csv_paths[0]))[0]
     idx = name.find('_')
     num = name[idx+1:]
@@ -168,7 +178,14 @@ def get_mega_df(csv_paths,
     new_df = new_df.set_index(['datetime'])
     new_df = new_df.dropna()
     y_rolling = new_df.rolling('365D', min_periods=1).mean()
-    y1 = y_rolling.resample('31D').ffill()
+    if freq=='monthly':
+        y1 = y_rolling.resample('31D').ffill()
+    elif freq=='seasonally':
+        y1 = y_rolling.resample('91D').ffill()
+    elif freq=='biannually':
+        y1 = y_rolling.resample('182D').ffill()
+    elif freq=='yearly':
+        y1 = y_rolling.resample('365D').ffill()
     y1 = y1.dropna()
     df=y1
 
@@ -190,7 +207,14 @@ def get_mega_df(csv_paths,
         new_df = new_df.set_index(['datetime'])
         new_df = new_df.dropna()
         y_rolling = new_df.rolling('365D', min_periods=1).mean()
-        y1 = y_rolling.resample('31D').ffill()
+        if freq=='monthly':
+            y1 = y_rolling.resample('31D').ffill()
+        elif freq=='seasonally':
+            y1 = y_rolling.resample('91D').ffill()
+        elif freq=='biannually':
+            y1 = y_rolling.resample('182D').ffill()
+        elif freq=='yearly':
+            y1 = y_rolling.resample('365D').ffill()
         y1 = y1.dropna()
         df=y1
 
@@ -202,14 +226,16 @@ def get_mega_df(csv_paths,
 def make_mega_df(folder,
                  basename,
                  start_idx,
-                 end_idx):
+                 end_idx,
+                 freq):
     mega_df_save = os.path.join(folder, basename+'_'+str(start_idx)+'to'+str(end_idx)+'.csv')
     csv_list = get_csvs(folder,
                         basename,
                         start_idx,
                         end_idx)
     mega_df = get_mega_df(csv_list,
-                          basename)
+                          basename,
+                          freq)
     mega_df.to_csv(mega_df_save)
     return mega_df
 
@@ -223,7 +249,8 @@ def process_results(sitename,
                     observed_dates,
                     date_predict,
                     forecast_dates,
-                    mega_arr_forecast):
+                    mega_arr_forecast,
+                    lookback):
     n_features = np.shape(mega_arr_pred)[1]
     bootstrap = np.shape(mega_arr_pred)[2]
     idx = start_idx
@@ -302,7 +329,8 @@ def main(transect_folder,
          units=80,
          batch_size=32,
          lookback=3,
-         split_percent=0.80):
+         split_percent=0.80,
+         freq='monthly'):
     
     look_back=lookback
     num_prediction=num_prediction
@@ -313,17 +341,19 @@ def main(transect_folder,
     mega_df = make_mega_df(transect_folder,
                            sitename,
                            start_idx,
-                           end_idx)
+                           end_idx,
+                           freq)
     observed_dates = mega_df.index
     dataset, train_generator, test_generator, n_features, prediction_generator = setup_data(mega_df,
-                                                                                                  start_idx,
-                                                                                                  end_idx,
-                                                                                                  split_percent,
-                                                                                                  look_back,
-                                                                                                  batch_size)
+                                                                                            start_idx,
+                                                                                            end_idx,
+                                                                                            split_percent,
+                                                                                            look_back,
+                                                                                            batch_size)
     date_predict = observed_dates[lookback:]
     mega_arr_pred = np.zeros((len(date_predict), n_features, bootstrap))
     mega_arr_forecast = np.zeros((num_prediction+1, n_features, bootstrap))
+    histories = [None]*bootstrap
     for i in range(bootstrap):
         reset_keras()
         model, history = train_model(train_generator,
@@ -332,10 +362,8 @@ def main(transect_folder,
                             look_back,
                             units,
                             n_features)
-        plot_history(history)
-        if i == bootstrap-1:
-            plt.savefig(os.path.join(output_folder, 'loss_plot.png'), dpi=300)
-            plt.close()
+        histories[i] = history
+
         prediction = predict_data(model, prediction_generator)
         mega_arr_pred[:,:,i] = prediction
         forecast, forecast_dates = project(mega_df,
@@ -343,8 +371,11 @@ def main(transect_folder,
                                            look_back,
                                            num_prediction,
                                            n_features,
-                                           model)
+                                           model,
+                                           freq)
         mega_arr_forecast[:,:,i] = forecast
+        
+
 
     process_results(sitename,
                     output_folder,
@@ -355,8 +386,19 @@ def main(transect_folder,
                     observed_dates,
                     date_predict,
                     forecast_dates,
-                    mega_arr_forecast)
-    
+                    mega_arr_forecast,
+                    lookback)
+    i = 0
+    for history in histories:
+        # convert the history.history dict to a pandas DataFrame:     
+        hist_df = pd.DataFrame(history.history) 
+        # save to csv: 
+        hist_csv_file = os.path.join(output_folder,'history'+str(i)+'.csv')
+        hist_df.to_csv(hist_csv_file, index=False)
+        plot_history(history)
+        i=i+1
+    plt.savefig(os.path.join(output_folder, 'loss_plot.png'), dpi=300)
+    plt.close('all')
 
 if __name__ == "__main__":
     from argparse import ArgumentParser
@@ -373,6 +415,7 @@ if __name__ == "__main__":
     parser.add_argument("--batch_size",type=int, required=True, help="training batch size")
     parser.add_argument("--lookback",type=int, required=True, help="look back value")
     parser.add_argument("--split_percent",type=float, required=True, help="training data fraction")
+    parser.add_argument("--freq", type=str, required=True, help="prediction frequency (monthly, seasonally, biannually, yearly")
     args = parser.parse_args()
     main(args.transect_folder,
          args.output_folder,
@@ -385,7 +428,8 @@ if __name__ == "__main__":
          units=args.units,
          batch_size=args.batch_size,
          lookback=args.lookback,
-         split_percent=args.split_percent)   
+         split_percent=args.split_percent,
+         freq=args.freq)   
 
 
 

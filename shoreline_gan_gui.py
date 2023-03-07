@@ -651,7 +651,8 @@ class Window(QMainWindow):
                            units,
                            batch_size,
                            lookback,
-                           split_percent):
+                           split_percent,
+                           freq):
         
         options = QFileDialog.Options()
         options |= QFileDialog.DontUseNativeDialog
@@ -672,7 +673,8 @@ class Window(QMainWindow):
                                       units=units,
                                       batch_size=batch_size,
                                       lookback=lookback,
-                                      split_percent=split_percent)
+                                      split_percent=split_percent,
+                                      freq=freq)
         
     def run_merge_projections_button(self,
                                      sitename,
@@ -786,6 +788,15 @@ class Window(QMainWindow):
         self.vbox.addWidget(split_percent_lab, 7, 1)
         self.vbox.addWidget(split_percent, 8, 1)
 
+        prediction_freq_lab = QLabel('Prediction Frequency')
+        prediction_freq = QComboBox()
+        prediction_freq.addItem('monthly')
+        prediction_freq.addItem('seasonally')
+        prediction_freq.addItem('biannually')
+        prediction_freq.addItem('yearly')
+        self.vbox.addWidget(prediction_freq_lab, 9, 1)
+        self.vbox.addWidget(prediction_freq, 10, 1)
+
         buttons = [exit_button,
                    site_name_lab,
                    site_name,
@@ -807,7 +818,9 @@ class Window(QMainWindow):
                    lookback,
                    run_project,
                    split_percent_lab,
-                   split_percent
+                   split_percent,
+                   prediction_freq_lab,
+                   prediction_freq
                    ]
         
         #actions
@@ -821,7 +834,10 @@ class Window(QMainWindow):
                                                                     lstm_units.value(),
                                                                     batch_size.value(),
                                                                     lookback.value(),
-                                                                    split_percent.value()))
+                                                                    split_percent.value(),
+                                                                    prediction_freq.currentText()
+                                                                    )
+                                    )
 
     def merge_projections_button(self):
         exit_button = QPushButton('Exit')

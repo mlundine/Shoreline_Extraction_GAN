@@ -11,7 +11,16 @@ from scipy import stats
 plt.rcParams["figure.figsize"] = (16,6)
 
 def plot_timeseries_with_fit(data, min_year_filter = 1984, max_year_filter = 2023):
-
+    folder = os.path.dirname(data)
+    lt_folder = os.path.join(folder, 'linear_trends')
+    try:
+        os.mkdir(lt_folder)
+    except:
+        pass
+    name = os.path.basename(data)
+    name = os.path.splitext(name)[0]
+    new_name = name+'linear_trend_yearly.png'
+    fig_path = os.path.join(lt_folder, new_name)
     df = pd.read_csv(data)
     df.reset_index()
     df = df.dropna()
@@ -26,7 +35,7 @@ def plot_timeseries_with_fit(data, min_year_filter = 1984, max_year_filter = 202
     filter_df = df[df['datetimes']>datetime.datetime(min_year_filter-1,12,31)]
     filter_df = df[df['datetimes']<datetime.datetime(max_year_filter+1,1,1)]
     filter_df.reset_index()
-    
+
     filtered_datetimes = np.array(filter_df['datetimes'])
     shore_pos = np.array(filter_df['distances'])
     datetimes_seconds = [None]*len(filtered_datetimes)
@@ -38,12 +47,43 @@ def plot_timeseries_with_fit(data, min_year_filter = 1984, max_year_filter = 202
         datetimes_seconds[i] = dt_sec
     datetimes_seconds = np.array(datetimes_seconds)
     datetimes_years = datetimes_seconds/(60*60*24*365)
+
+
     x = datetimes_years
     y = shore_pos
-    result1 = stats.linregress(x,y)
+    
+    new_df = pd.DataFrame({'shoreline':list(y)},
+                          index=list(datetimes))
+    y2 = new_df.rolling('365D', min_periods=1).mean()
+    y2 = np.array(y2.shoreline)
+    result1 = stats.linregress(x,y2)
+    intercept1 = result1.intercept
     slope1 = result1.slope
+    r_value1 = result1.rvalue**2
+    intercept_err = result1.intercept_stderr
+    slope_err = result1.stderr
+    lab = ('OLS\nSlope: ' +
+          str(np.round(slope1,decimals=3)) + ' $+/-$ ' + str(np.round(slope_err, decimals=3)) +
+          '\nIntercept: ' +
+          str(np.round(intercept1,decimals=3)) + ' $+/-$ ' + str(np.round(intercept_err, decimals=3)) +
+          '\n$R^2$: ' + str(np.round(r_value1,decimals=3)))
+    fit1x = datetimes_years
+    fit1y = slope1*fit1x + intercept1
+    
+    plt.plot(datetimes, y2, color='navy', label='Yearly Moving Average')
+    plt.plot(datetimes, fit1y, '--', color='red', label=lab)
+    plt.minorticks_on()
+    plt.xticks(rotation=90)
+    plt.xlabel('Time (UTC)')
+    plt.ylabel('Cross-Shore Position (m)')
+    plt.xlim(min(datetimes), max(datetimes))
+    plt.ylim(min(y2), max(y2))
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig(fig_path,dpi=300)
+    plt.close()
 
-    return slope1
+    return slope1, fig_path
 
 def gb(x1, y1, x2, y2):
     angle = degrees(atan2(y2 - y1, x2 - x1))
@@ -78,15 +118,18 @@ def batch_transect_timeseries(sitename,
     transects = gpd.read_file(transects_path)
     transects = transects.reset_index()
     slopes = [None]*len(transects)
+    fig_paths = [None]*len(transects)
     csvs = [None]*len(transects)
     for i in range(len(transects)):
         print(np.round(i/len(transects),2))
         csv = os.path.join(transects_csv_folder, sitename+str(i)+'.csv')
-        slope = plot_timeseries_with_fit(csv, min_year_filter=min_year_filter,max_year_filter=max_year_filter)
+        slope, fig_path = plot_timeseries_with_fit(csv, min_year_filter=min_year_filter,max_year_filter=max_year_filter)
         slopes[i] = slope
+        fig_paths[i] = fig_path
 
         
     transects['yearly_trend'] = slopes
+    transects['fig_paths'] = fig_paths
     max_slope = np.max(np.abs(slopes))
     scaled_slopes = (np.array(slopes)/1)*100
     new_lines = [None]*len(transects)
@@ -104,7 +147,8 @@ def batch_transect_timeseries(sitename,
         line = arr_to_LineString(line_arr)
         new_lines[i] = line
     
-    new_df = pd.DataFrame({'year_tr':slopes})
+    new_df = pd.DataFrame({'year_tr':slopes,
+                           'fig_paths':fig_paths})
     new_geo_df = gpd.GeoDataFrame(new_df, crs="EPSG:"+str(epsg), geometry=new_lines)
     
     new_geo_df.to_file(transects_path_name)

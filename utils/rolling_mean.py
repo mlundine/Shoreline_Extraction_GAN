@@ -78,7 +78,6 @@ def plot_timeseries_with_rolling_means_and_linear_fit(data, projection=10):
     plt.savefig(fig_path,dpi=300)
     plt.close()
 
-    print(y3.head())
     plt.plot(datetimes, y3.shoreline, color='navy', label='Yearly Moving Average')
     plt.minorticks_on()
     plt.xticks(rotation=90)
