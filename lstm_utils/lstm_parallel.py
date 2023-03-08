@@ -179,15 +179,15 @@ def get_mega_df(csv_paths,
     new_df = new_df.dropna()
     y_rolling = new_df.rolling('365D', min_periods=1).mean()
     if freq=='monthly':
-        y1 = y_rolling.resample('31D').ffill()
+        y_1 = y_rolling.resample('31D').ffill()
     elif freq=='seasonally':
-        y1 = y_rolling.resample('91D').ffill()
+        y_1 = y_rolling.resample('91D').ffill()
     elif freq=='biannually':
-        y1 = y_rolling.resample('182D').ffill()
+        y_1 = y_rolling.resample('182D').ffill()
     elif freq=='yearly':
-        y1 = y_rolling.resample('365D').ffill()
-    y1 = y1.dropna()
-    df=y1
+        y_1 = y_rolling.resample('365D').ffill()
+    y_1 = y_1.dropna()
+    df=y_1
 
 
     mega_list = [None]*len(csv_paths)
@@ -216,10 +216,13 @@ def get_mega_df(csv_paths,
         elif freq=='yearly':
             y1 = y_rolling.resample('365D').ffill()
         y1 = y1.dropna()
+        y1 = y1.reindex(y_1.index, method='ffill')
         df=y1
 
         mega_list[i] = df
-    mega_df = pd.concat(mega_list, join='inner', axis=1)
+    mega_df = pd.concat(mega_list, 1)
+    mega_df = mega_df.fillna(method='ffill')
+    mega_df = mega_df.dropna()
 
     return mega_df
 
