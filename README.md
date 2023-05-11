@@ -190,6 +190,16 @@ And last here are the median deviations each year as a timeseries.
 The deviations are fairly consistent across the available temporal range, meaning the model is providing consistent results no matter the year.
 Larger deviations, and hence poor automated delineation of shorelines, is likely occuring in cloudy and noisy images.
 
+# In-Situ Data Comparison at Duck, NC
+
+Using the satellite-derived shoreline benchmark software, found [here](https://github.com/SatelliteShorelines/SDS_Benchmark), 
+shorelines extracted through the methods developed in this repo were compared with shorelines derived from in-situ survey methods.
+The training data for the GAN was mainly from US East Coast beaches, so the Duck dataset served as a solid comparison site.
+Shown below is a histogram (left) and box and whisker plot (right) of the deviation between the satellite shorelines and the in-situ shorelines at Duck, NC.
+The root mean squared error (RMSE) is probably the most appropriate metric, which ended up being 12.7 m. 
+![duck_accuracy](images/DUCK_accuracy.jpg)
+
+
 # Setup
 
 Tutorial Videos
