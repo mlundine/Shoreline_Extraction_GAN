@@ -22,6 +22,9 @@ Delmarva
 Delaware oceanside trends. 
 ![delaware_trends](/images/DelawareOceanside_Trends.gif)
 
+Delaware estuary trends.
+![delaware_estuary_trends](/images/DelawareEstuary_Trends.gif)
+
 Broadkill Beach trends, big nourishment in 2015-2016, followed by erosion focused on the center of the nourishment zone.
 ![broadkill_trends](/images/BroadkillTrends.gif)
 
