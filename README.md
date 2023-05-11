@@ -19,6 +19,12 @@ Delmarva
 
 ![delmarva_ex](/images/DelmarvaPanel.png)
 
+Delaware oceanside trends. 
+!(delaware_trends)(/images/DelawareOceanside_Trends.gif)
+
+Broadkill Beach trends, big nourishment in 2015-2016, followed by erosion focused on the center of the nourishment zone.
+!(broadkill_trends)(/images/BroadkillTrends.gif)
+
 Jersey Shore
 
 * Top Left: Sandy Hook
