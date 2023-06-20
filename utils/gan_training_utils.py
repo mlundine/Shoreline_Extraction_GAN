@@ -27,7 +27,6 @@ def setup_datasets(home,
     os.system(full_cmd)
 
 
-
 def split_datasets(pix2pix_training_folder, A_folder, B_folder):
     A = os.path.join(pix2pix_training_folder, 'A')
     B = os.path.join(pix2pix_training_folder, 'B')

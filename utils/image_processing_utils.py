@@ -109,13 +109,14 @@ def json_to_png(annotation_folder, extra_outputs, pix2pix_training_folder):
         i=i+1
         frac = i/total
 
+
+
 def png_to_jpeg_edit(folder, outFolder):
     for im in glob.glob(folder + '\*.png'):
         img_gray = cv2.imread(im)[:,:,2]
         img_gray[img_gray>10] = 255
         img_gray[img_gray<255] = 0
         cv2.imwrite(os.path.join(outFolder, os.path.splitext(os.path.basename(im))[0]+'.jpeg'), img_gray)
-
 def png_to_jpeg(in_folder, out_folder):
     ims = glob.glob(in_folder + '\*.png')
     for im in ims:

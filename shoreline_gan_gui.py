@@ -24,7 +24,7 @@ from utils import shoreline_timeseries_utils
 from utils import getting_linear_trends
 from lstm_utils import lstm_2D_projection as project_shore
 from lstm_utils import batch_lstm_proj as project_ts_batch
-
+from lstm_utils import batch_lstm_proj_seq as project_ts_batch_seq
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 from PyQt5.QtGui import *
@@ -651,6 +651,7 @@ class Window(QMainWindow):
                            units,
                            batch_size,
                            lookback,
+                           lookforward,
                            split_percent,
                            freq):
         
@@ -662,19 +663,35 @@ class Window(QMainWindow):
             options |= QFileDialog.DontUseNativeDialog
             projected_folder = str(QFileDialog.getExistingDirectory(self, "Select Folder to Save Projections To (Make New Folder)"))
             if projected_folder:
-                project_ts_batch.main(transect_folder,
-                                      projected_folder,
-                                      sitename,
-                                      num1,
-                                      num2,
-                                      bootstrap=bootstrap,
-                                      num_prediction=num_prediction,
-                                      epochs=epochs,
-                                      units=units,
-                                      batch_size=batch_size,
-                                      lookback=lookback,
-                                      split_percent=split_percent,
-                                      freq=freq)
+                if lookforward==1:
+                    project_ts_batch.main(transect_folder,
+                                          projected_folder,
+                                          sitename,
+                                          num1,
+                                          num2,
+                                          bootstrap=bootstrap,
+                                          num_prediction=num_prediction,
+                                          epochs=epochs,
+                                          units=units,
+                                          batch_size=batch_size,
+                                          lookback=lookback,
+                                          split_percent=split_percent,
+                                          freq=freq)
+                else:
+                    project_ts_batch_seq.main(transect_folder,
+                                              projected_folder,
+                                              sitename,
+                                              num1,
+                                              num2,
+                                              bootstrap=bootstrap,
+                                              num_prediction=num_prediction,
+                                              epochs=epochs,
+                                              units=units,
+                                              batch_size=batch_size,
+                                              lookback=lookback,
+                                              lookforward=lookforward,
+                                              split_percent=split_percent,
+                                              freq=freq)
         
     def run_merge_projections_button(self,
                                      sitename,
@@ -780,6 +797,14 @@ class Window(QMainWindow):
         self.vbox.addWidget(lookback_lab, 5, 1)
         self.vbox.addWidget(lookback, 6, 1)
 
+        lookforward_lab = QLabel('Look-Forward Value')
+        lookforward = QSpinBox()
+        lookforward.setMinimum(1)
+        lookforward.setMaximum(9999)
+        lookforward.setValue(1)
+        self.vbox.addWidget(lookforward_lab, 5, 4)
+        self.vbox.addWidget(lookforward, 6, 4)
+
         split_percent_lab = QLabel('Training Split')
         split_percent = QDoubleSpinBox()
         split_percent.setMinimum(0.40)
@@ -820,7 +845,9 @@ class Window(QMainWindow):
                    split_percent_lab,
                    split_percent,
                    prediction_freq_lab,
-                   prediction_freq
+                   prediction_freq,
+                   lookforward_lab,
+                   lookforward
                    ]
         
         #actions
@@ -834,6 +861,7 @@ class Window(QMainWindow):
                                                                     lstm_units.value(),
                                                                     batch_size.value(),
                                                                     lookback.value(),
+                                                                    lookforward.value(),
                                                                     split_percent.value(),
                                                                     prediction_freq.currentText()
                                                                     )
